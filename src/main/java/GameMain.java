@@ -1,9 +1,11 @@
 import chess.ChessWindow;
 
-public class GameMain {
-    public static void main() {
+import javax.swing.*;
 
-        ChessWindow window = new ChessWindow();
+public class GameMain {
+    public static void main(String[] args) {
+
+        SwingUtilities.invokeLater(ChessWindow::new);
 
     }
 }
