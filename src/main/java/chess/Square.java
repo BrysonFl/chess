@@ -9,8 +9,8 @@ public class Square extends JButton {
 
     private Piece piece;
 
-    private static int row;
-    private static int col;
+    private int row;
+    private int col;
 
     public Square() {
         setBorderPainted(false);
@@ -40,7 +40,7 @@ public class Square extends JButton {
     }
 
     public void setRow(int row) {
-        Square.row = row;
+        this.row = row;
     }
 
     public int getCol() {
@@ -48,6 +48,6 @@ public class Square extends JButton {
     }
 
     public void setCol(int col) {
-        Square.col = col;
+        this.col = col;
     }
 }

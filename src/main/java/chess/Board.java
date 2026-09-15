@@ -11,8 +11,7 @@ public class Board extends JPanel {
 
     public Board() {
         setLayout(new GridLayout(8, 8, 0, 0));
-        setBackground(Color.WHITE);
-        setPreferredSize(new Dimension(800, 800));
+        setBorder(BorderFactory.createLineBorder(Color.BLUE));
 
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
@@ -28,10 +27,9 @@ public class Board extends JPanel {
 
                 squares[row][col] = square;
 
-                int currentRow = row;
-                int currentCol = col;
-
-                square.addActionListener(e -> movement(square, currentRow, currentCol));
+                square.addActionListener(e -> {
+                    movement(square);
+                });
                 add(square);
             }
         }
@@ -76,21 +74,8 @@ public class Board extends JPanel {
         squares[0][4].setPiece(new King("black"));
     }
 
-    private void movement(Square square, int currentRow, int currentCol) {
-        Color beforeColor = square.getBackground();
-
-        System.out.println("------");
-        System.out.println(currentRow);
-        System.out.println(currentCol);
-        System.out.println("------");
-        System.out.println(square.getRow());
-        System.out.println(square.getCol());
-
-        if (square.getRow() != currentRow && square.getCol() != currentCol) {
-            squares[currentRow][currentCol].setBackground(Color.LIGHT_GRAY);
-        } else {
-            squares[square.getRow()][square.getCol()].setBackground(beforeColor);
-        }
+    private void movement(Square square) {
+        squares[square.getRow()][square.getCol()].setBackground(Color.CYAN);
     }
 
 }
