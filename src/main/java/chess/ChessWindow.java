@@ -1,7 +1,5 @@
 package chess;
 
-import menu.RightContainer;
-
 import javax.swing.*;
 import java.awt.*;
 
@@ -11,13 +9,13 @@ public class ChessWindow extends JFrame {
         setTitle("Chess");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-        JSplitPane pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new Board(), new RightContainer());
+        Box box = new Box(BoxLayout.Y_AXIS);
+        box.setAlignmentX(JComponent.CENTER_ALIGNMENT);
+        box.add(Box.createVerticalGlue());
+        box.add(new BoardContainer());
+        box.add(Box.createVerticalGlue());
 
-        pane.setResizeWeight(0.8);
-        pane.setDividerSize(0);
-        pane.setEnabled(false);
-
-        add(pane);
+        add(box);
 
         setSize(Toolkit.getDefaultToolkit().getScreenSize());
         setVisible(true);

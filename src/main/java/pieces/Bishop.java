@@ -3,10 +3,10 @@ package pieces;
 import javax.swing.*;
 import java.net.URL;
 
-public class Knight extends Piece {
+public class Bishop extends Piece {
 
-    public Knight(String color) {
-        URL imageUrl = getClass().getResource(color.equalsIgnoreCase("white") ? "/knight_white.png" : "/knight_black.png");
+    public Bishop(String color) {
+        URL imageUrl = getClass().getResource(color.equalsIgnoreCase("white") ? "/bishop_white.png" : "/bishop_black.png");
 
         if (imageUrl != null) {
             setImage(new ImageIcon(imageUrl));
