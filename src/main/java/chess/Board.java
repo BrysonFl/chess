@@ -12,38 +12,20 @@ public class Board extends JPanel {
 
     private final Square[][] squares = new Square[8][8];
 
+    private int initialRowPawns;
+    private int initialRow;
+
     private static Square beforeSquare;
+
+    private int numberPlayerTurn = 1;
 
     public Board() {
         setLayout(new GridLayout(8, 8, 0, 0));
-        setBorder(BorderFactory.createLineBorder(Color.BLUE));
+        setPreferredSize(new Dimension(1000, 1000));
 
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
-                Square square = new Square();
-                square.setRow(row);
-                square.setCol(col);
-
-                if ((row + col) % 2 == 0) {
-                    square.setBackground(new Color(238, 238, 210));
-                } else {
-                    square.setBackground(new Color(118, 150, 86));
-                }
-
-                String rowCoordinate = (col == 0) ? String.valueOf(8 - row) : "";
-                String colCoordinate = (row == 7) ? String.valueOf((char) ('a' + col)) : "";
-
-                square.setCoordinates(rowCoordinate, colCoordinate);
-                squares[row][col] = square;
-
-                square.addMouseListener(new MouseAdapter() {
-                    @Override
-                    public void mouseClicked(MouseEvent e) {
-                        showValidMovements((Square) e.getSource());
-                        movePiece((Square) e.getSource());
-                    }
-                });
-
+                Square square = initializeSquare(row, col);
                 add(square);
             }
         }
@@ -52,60 +34,85 @@ public class Board extends JPanel {
         initializeBlackPieces();
     }
 
-    private void initializeWhitePieces() {
-        for (int i = 0; i < 8; i++) {
-            squares[squares.length - 2][i].setPiece(new Pawn("white"));
+    private Square initializeSquare(int row, int col) {
+        Square square = new Square();
+        square.setRow(row);
+        square.setCol(col);
+
+        if ((row + col) % 2 == 0) {
+            square.setBackground(new Color(238, 238, 210));
+        } else {
+            square.setBackground(new Color(118, 150, 86));
         }
 
-        squares[squares.length - 1][0].setPiece(new Rook("white"));
-        squares[squares.length - 1][7].setPiece(new Rook("white"));
+        String rowCoordinate = (col == 0) ? String.valueOf(8 - row) : "";
+        String colCoordinate = (row == 7) ? String.valueOf((char) ('a' + col)) : "";
 
-        squares[squares.length - 1][1].setPiece(new Knight("white"));
-        squares[squares.length - 1][6].setPiece(new Knight("white"));
+        square.setCoordinates(rowCoordinate, colCoordinate);
+        squares[row][col] = square;
 
-        squares[squares.length - 1][2].setPiece(new Bishop("white"));
-        squares[squares.length - 1][5].setPiece(new Bishop("white"));
-
-        squares[squares.length - 1][3].setPiece(new Queen("white"));
-        squares[squares.length - 1][4].setPiece(new King("white"));
-    }
-
-    private void initializeBlackPieces() {
-        for (int i = 0; i < 8; i++) {
-            squares[1][i].setPiece(new Pawn("black"));
-        }
-
-        squares[0][0].setPiece(new Rook("black"));
-        squares[0][7].setPiece(new Rook("black"));
-
-        squares[0][1].setPiece(new Knight("black"));
-        squares[0][6].setPiece(new Knight("black"));
-
-        squares[0][2].setPiece(new Bishop("black"));
-        squares[0][5].setPiece(new Bishop("black"));
-
-        squares[0][3].setPiece(new Queen("black"));
-        squares[0][4].setPiece(new King("black"));
-    }
-
-    private void showValidMovements(Square square) {
         square.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                clearAllSquares();
-
-                if (square.getPiece() != null) {
-                    List<Integer[]> result = square.getPiece().validateMovements(square.getRow(), square.getCol());
-
-                    for (Integer[] move : result) {
-                        int targetRow = move[0];
-                        int targetCol = move[1];
-
-                        squares[targetRow][targetCol].setPossible(true);
-                    }
-                }
+                movePiece((Square) e.getSource());
             }
         });
+
+        return square;
+    }
+
+    private void initializeWhitePieces() {
+        initialRowPawns = squares.length - 2;
+        initialRow = squares.length - 1;
+
+        for (int i = 0; i < 8; i++) {
+            squares[initialRowPawns][i].setPiece(new Pawn(PiecesColors.WHITE));
+        }
+
+        squares[initialRow][0].setPiece(new Rook(PiecesColors.WHITE));
+        squares[initialRow][7].setPiece(new Rook(PiecesColors.WHITE));
+
+        squares[initialRow][1].setPiece(new Knight(PiecesColors.WHITE));
+        squares[initialRow][6].setPiece(new Knight(PiecesColors.WHITE));
+
+        squares[initialRow][2].setPiece(new Bishop(PiecesColors.WHITE));
+        squares[initialRow][5].setPiece(new Bishop(PiecesColors.WHITE));
+
+        squares[initialRow][3].setPiece(new Queen(PiecesColors.WHITE));
+        squares[initialRow][4].setPiece(new King(PiecesColors.WHITE));
+    }
+
+    private void initializeBlackPieces() {
+        initialRowPawns = 1;
+        initialRow = 0;
+
+        for (int i = 0; i < 8; i++) {
+            squares[initialRowPawns][i].setPiece(new Pawn(PiecesColors.BLACK));
+        }
+
+        squares[initialRow][0].setPiece(new Rook(PiecesColors.BLACK));
+        squares[initialRow][7].setPiece(new Rook(PiecesColors.BLACK));
+
+        squares[initialRow][1].setPiece(new Knight(PiecesColors.BLACK));
+        squares[initialRow][6].setPiece(new Knight(PiecesColors.BLACK));
+
+        squares[initialRow][2].setPiece(new Bishop(PiecesColors.BLACK));
+        squares[initialRow][5].setPiece(new Bishop(PiecesColors.BLACK));
+
+        squares[initialRow][3].setPiece(new Queen(PiecesColors.BLACK));
+        squares[initialRow][4].setPiece(new King(PiecesColors.BLACK));
+    }
+
+    private void showValidMovements(Square square) {
+        clearAllSquares();
+
+        if (square.getPiece() != null) {
+            List<Integer[]> result = square.getPiece().validateMovements(square.getRow(), square.getCol(), squares);
+
+            for (Integer[] move : result) {
+                squares[move[0]][move[1]].setPossible(true);
+            }
+        }
     }
 
     public void clearAllSquares() {
@@ -117,11 +124,13 @@ public class Board extends JPanel {
     }
 
     private void movePiece(Square square) {
-        System.out.println("Before square " + beforeSquare);
-        System.out.println("Current square " + square);
-
         if (beforeSquare == null) {
-            beforeSquare = square;
+            if (square.getPiece() != null) {
+                beforeSquare = square;
+                showValidMovements(square);
+            }
+
+            return;
         }
 
         if (square.isPossible()) {
@@ -131,7 +140,7 @@ public class Board extends JPanel {
         }
 
         clearAllSquares();
-        //showValidMovements(square);
+        beforeSquare = null;
     }
 
 }

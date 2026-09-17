@@ -1,5 +1,7 @@
 package pieces;
 
+import chess.Square;
+
 import javax.swing.*;
 import java.net.URL;
 import java.util.ArrayList;
@@ -7,8 +9,10 @@ import java.util.List;
 
 public class Rook extends Piece {
 
-    public Rook(String color) {
-        URL imageUrl = getClass().getResource(color.equalsIgnoreCase("white") ? "/rook_white.png" : "/rook_black.png");
+    public Rook(PiecesColors color) {
+        super(color);
+
+        URL imageUrl = getClass().getResource(color.equals(PiecesColors.WHITE) ? "/rook_white.png" : "/rook_black.png");
 
         if (imageUrl != null) {
             setImage(new ImageIcon(imageUrl));
@@ -18,7 +22,7 @@ public class Rook extends Piece {
     }
 
     @Override
-    public List<Integer[]> validateMovements(int row, int col) {
+    public List<Integer[]> validateMovements(int row, int col, Square[][] board) {
         return new ArrayList<>();
     }
 

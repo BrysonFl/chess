@@ -8,9 +8,9 @@ import java.awt.event.MouseEvent;
 public class BoardContainer extends JPanel {
 
     public BoardContainer() {
-        setSize(1000, 1000);
         setBorder(BorderFactory.createLineBorder(Color.RED));
         setLayout(new GridBagLayout());
+        setBackground(Color.WHITE);
 
         Board board = new Board();
 
