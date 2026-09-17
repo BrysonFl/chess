@@ -11,7 +11,7 @@ public class ChessWindow extends JFrame {
         setSize(Toolkit.getDefaultToolkit().getScreenSize());
         setVisible(true);
 
-        add(new Board());
+        add(new BoardContainer());
     }
 
 

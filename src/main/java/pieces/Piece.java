@@ -1,6 +1,7 @@
 package pieces;
 
 import javax.swing.*;
+import java.util.List;
 
 public abstract class Piece {
 
@@ -14,6 +15,6 @@ public abstract class Piece {
         return image;
     }
 
-    public abstract void validateMovement();
+    public abstract List<Integer[]> validateMovements(int row, int col);
 
 }

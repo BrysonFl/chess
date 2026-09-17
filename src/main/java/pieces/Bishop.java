@@ -2,6 +2,8 @@ package pieces;
 
 import javax.swing.*;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Bishop extends Piece {
 
@@ -16,7 +18,7 @@ public class Bishop extends Piece {
     }
 
     @Override
-    public void validateMovement() {
-
+    public List<Integer[]> validateMovements(int row, int col) {
+        return new ArrayList<>();
     }
 }

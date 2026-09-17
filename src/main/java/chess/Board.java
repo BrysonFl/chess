@@ -4,10 +4,17 @@ import pieces.*;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.List;
 
 public class Board extends JPanel {
 
     private final Square[][] squares = new Square[8][8];
+
+    private static Square beforeSquare;
+
+    boolean isClicked = false;
 
     public Board() {
         setLayout(new GridLayout(8, 8, 0, 0));
@@ -25,11 +32,13 @@ public class Board extends JPanel {
                     square.setBackground(new Color(118, 150, 86));
                 }
 
-                squares[row][col] = square;
+                String rowCoordinate = (col == 0) ? String.valueOf(8 - row) : "";
+                String colCoordinate = (row == 7) ? String.valueOf((char) ('a' + col)) : "";
 
-                square.addActionListener(e -> {
-                    movement(square);
-                });
+                square.setCoordinates(rowCoordinate, colCoordinate);
+                squares[row][col] = square;
+                validMovements(square);
+
                 add(square);
             }
         }
@@ -74,8 +83,32 @@ public class Board extends JPanel {
         squares[0][4].setPiece(new King("black"));
     }
 
-    private void movement(Square square) {
-        squares[square.getRow()][square.getCol()].setBackground(Color.CYAN);
+    private void validMovements(Square square) {
+        square.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                clearAll();
+
+                if (square.getPiece() != null) {
+                    List<Integer[]> result = square.getPiece().validateMovements(square.getRow(), square.getCol());
+
+                    for (Integer[] move : result) {
+                        int targetRow = move[0];
+                        int targetCol = move[1];
+
+                        squares[targetRow][targetCol].setPossible(true);
+                    }
+                }
+            }
+        });
+    }
+
+    public void clearAll() {
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                squares[row][col].setPossible(false);
+            }
+        }
     }
 
 }

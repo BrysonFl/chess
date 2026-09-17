@@ -2,6 +2,8 @@ package pieces;
 
 import javax.swing.*;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Rook extends Piece {
 
@@ -16,8 +18,8 @@ public class Rook extends Piece {
     }
 
     @Override
-    public void validateMovement() {
-
+    public List<Integer[]> validateMovements(int row, int col) {
+        return new ArrayList<>();
     }
 
     @Override
