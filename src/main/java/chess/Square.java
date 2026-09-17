@@ -44,13 +44,6 @@ public class Square extends JButton {
                 isLifted = false;
                 setBorder(BorderFactory.createEmptyBorder());
             }
-
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                Square currentSquare = (Square) e.getSource();
-
-                setPiece(currentSquare.piece);
-            }
         });
     }
 
@@ -82,12 +75,15 @@ public class Square extends JButton {
     public void updateCursor() {
         if (this.getPiece() != null || this.isPossible) {
             this.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        } else {
+            this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
         }
     }
 
     public void setPiece(Piece piece) {
         this.piece = piece;
         if (piece != null) this.setIcon(piece.getImage());
+        else this.setIcon(null);
 
         updateCursor();
     }
@@ -118,6 +114,10 @@ public class Square extends JButton {
         repaint();
     }
 
+    public boolean isPossible() {
+        return isPossible;
+    }
+
     public String getRowNumber() {
         return rowNumber;
     }
@@ -133,7 +133,10 @@ public class Square extends JButton {
                 "piece=" + piece +
                 ", row=" + row +
                 ", col=" + col +
+                ", isLifted=" + isLifted +
+                ", rowNumber='" + rowNumber + '\'' +
+                ", colNumber='" + colNumber + '\'' +
+                ", isPossible=" + isPossible +
                 '}';
     }
-
 }

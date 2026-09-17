@@ -19,7 +19,7 @@ public class BoardContainer extends JPanel {
         this.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                board.clearAll();
+                board.clearAllSquares();
             }
         });
     }

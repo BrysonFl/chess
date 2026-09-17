@@ -14,8 +14,6 @@ public class Board extends JPanel {
 
     private static Square beforeSquare;
 
-    boolean isClicked = false;
-
     public Board() {
         setLayout(new GridLayout(8, 8, 0, 0));
         setBorder(BorderFactory.createLineBorder(Color.BLUE));
@@ -37,7 +35,14 @@ public class Board extends JPanel {
 
                 square.setCoordinates(rowCoordinate, colCoordinate);
                 squares[row][col] = square;
-                validMovements(square);
+
+                square.addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        showValidMovements((Square) e.getSource());
+                        movePiece((Square) e.getSource());
+                    }
+                });
 
                 add(square);
             }
@@ -83,11 +88,11 @@ public class Board extends JPanel {
         squares[0][4].setPiece(new King("black"));
     }
 
-    private void validMovements(Square square) {
+    private void showValidMovements(Square square) {
         square.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                clearAll();
+                clearAllSquares();
 
                 if (square.getPiece() != null) {
                     List<Integer[]> result = square.getPiece().validateMovements(square.getRow(), square.getCol());
@@ -103,12 +108,30 @@ public class Board extends JPanel {
         });
     }
 
-    public void clearAll() {
+    public void clearAllSquares() {
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
                 squares[row][col].setPossible(false);
             }
         }
+    }
+
+    private void movePiece(Square square) {
+        System.out.println("Before square " + beforeSquare);
+        System.out.println("Current square " + square);
+
+        if (beforeSquare == null) {
+            beforeSquare = square;
+        }
+
+        if (square.isPossible()) {
+            squares[square.getRow()][square.getCol()].setPiece(beforeSquare.getPiece());
+            squares[beforeSquare.getRow()][beforeSquare.getCol()].setPiece(null);
+            beforeSquare = null;
+        }
+
+        clearAllSquares();
+        //showValidMovements(square);
     }
 
 }
