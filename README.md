@@ -1,3 +1,4 @@
 ## Diagrama de clases
 
-<img width="782" height="474" alt="Chess - Classes Diagram drawio" src="https://github.com/user-attachments/assets/2975350d-a9b8-4a6b-8107-bdb9bb425f02" />
+<img width="1700" height="1100" alt="Chess - Classes Diagram" src="https://github.com/user-attachments/assets/516ed206-c055-42e8-be0f-8a4a594bb35b" />
+
