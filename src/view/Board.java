@@ -1,5 +1,6 @@
 package view;
 
+import controller.GameController;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
@@ -31,9 +32,12 @@ public class Board extends JPanel {
         setLayout(new GridLayout(8, 8));
         squares = new Square[8][8];
         
+        GameController controller = new GameController(this);
+        
         for (int row = 0; row < squares.length; row++) {
             for (int col = 0; col < squares[row].length; col++) {
                 squares[row][col] = new Square(row, col);
+                squares[row][col].addActionListener(controller);
                 add(squares[row][col]);
             }
         }
