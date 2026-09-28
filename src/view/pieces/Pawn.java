@@ -1,6 +1,6 @@
 package view.pieces;
 
-import java.net.URL;
+import enums.PieceType;
 
 /**
  *
@@ -8,14 +8,8 @@ import java.net.URL;
  */
 public class Pawn extends Piece {
     
-    public Pawn() {
-        URL url = getClass().getResource("/images/pieces/wP.png");
-        
-        if (url != null) {
-            setIcon(url);
-        } else {
-            System.out.println("No se encontró la imagen");
-        }
+    public Pawn(boolean isWhite) {
+        super(isWhite, PieceType.PAWN);
     }
     
 }

@@ -4,8 +4,11 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import javax.swing.JPanel;
+import view.pieces.Bishop;
+import view.pieces.King;
 import view.pieces.Knight;
 import view.pieces.Pawn;
+import view.pieces.Queen;
 import view.pieces.Rook;
 
 /**
@@ -21,6 +24,7 @@ public class Board extends JPanel {
         setBackground(Color.red);
         loadSquaresBoard();
         initializeWhitePieces();
+        initializeBlackPieces();
     }
     
     private void loadSquaresBoard() {
@@ -37,14 +41,38 @@ public class Board extends JPanel {
     
     private void initializeWhitePieces() {
         for (int col = 0; col < squares.length; col++) {
-            squares[6][col].setPiece(new Pawn());
+            squares[6][col].setPiece(new Pawn(true));
         }
         
-        squares[7][0].setPiece(new Rook());
-        squares[7][7].setPiece(new Rook());
+        squares[7][0].setPiece(new Rook(true));
+        squares[7][7].setPiece(new Rook(true));
         
-        squares[7][1].setPiece(new Knight());
-        squares[7][6].setPiece(new Knight());
+        squares[7][1].setPiece(new Knight(true));
+        squares[7][6].setPiece(new Knight(true));
+        
+        squares[7][2].setPiece(new Bishop(true));
+        squares[7][5].setPiece(new Bishop(true));
+        
+        squares[7][4].setPiece(new Queen(true));
+        squares[7][3].setPiece(new King(true));
+    }
+    
+    private void initializeBlackPieces() {
+        for (int col = 0; col < squares.length; col++) {
+            squares[1][col].setPiece(new Pawn(false));
+        }
+        
+        squares[0][0].setPiece(new Rook(false));
+        squares[0][7].setPiece(new Rook(false));
+        
+        squares[0][1].setPiece(new Knight(false));
+        squares[0][6].setPiece(new Knight(false));
+        
+        squares[0][2].setPiece(new Bishop(false));
+        squares[0][5].setPiece(new Bishop(false));
+        
+        squares[0][4].setPiece(new Queen(false));
+        squares[0][3].setPiece(new King(false));
     }
     
 }
