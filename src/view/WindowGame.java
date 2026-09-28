@@ -1,11 +1,8 @@
 package view;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.GridBagLayout;
 import java.awt.Toolkit;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 
 /**
  *
@@ -17,12 +14,10 @@ public class WindowGame extends JFrame {
         setSize(Toolkit.getDefaultToolkit().getScreenSize().width, Toolkit.getDefaultToolkit().getScreenSize().height);
         setLayout(new GridBagLayout());
         setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setResizable(false);
+        setTitle("Chess Royale");
         
-        JPanel boardContainer = new JPanel(new BorderLayout());
-        boardContainer.setPreferredSize(new Dimension(500, 500));
-        boardContainer.add(new Board());
-        
-        add(boardContainer);
+        add(new Board());
         setVisible(true);
     }
     

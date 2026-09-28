@@ -1,6 +1,10 @@
 package view;
 
+import java.awt.Color;
+import java.awt.Cursor;
 import javax.swing.JButton;
+
+import view.pieces.Piece;
 
 /**
  *
@@ -8,8 +12,29 @@ import javax.swing.JButton;
  */
 public class Square extends JButton {
     
-    public Square() {
+    private Piece piece;
+    
+    public Square(int row, int col) {
+        setOpaque(true);
+        setBorderPainted(false);
+        setCursor(new Cursor(Cursor.HAND_CURSOR));
+        setSelected(false);
+        setFocusPainted(false);
+        setBackground((row + col) %2 == 0 ? Color.BLACK : Color.WHITE);
+    }
+
+    public Piece getPiece() {
+        return piece;
+    }
+
+    public void setPiece(Piece piece) {
+        this.piece = piece;
         
+        if (piece != null && piece.getIcon() != null) {
+            this.setIcon(piece.getIcon());
+        } else {
+            this.setIcon(null);
+        }
     }
     
 }
