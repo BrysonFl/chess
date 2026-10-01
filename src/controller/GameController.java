@@ -20,6 +20,11 @@ public class GameController implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         Square currentSquare = (Square) e.getSource();
+        validatePieceMovements(currentSquare);
+    }
+    
+    private static void validatePieceMovements(Square square) {
+        
     }
    
 }

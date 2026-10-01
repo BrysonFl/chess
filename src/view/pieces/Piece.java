@@ -40,4 +40,6 @@ public abstract class Piece {
         return icon;
     }
     
+    protected abstract void validMovements();
+    
 }

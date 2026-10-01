@@ -14,6 +14,9 @@ public class Square extends JButton {
     
     private Piece piece;
     
+    private int row;
+    private int col;
+    
     public Square(int row, int col) {
         setOpaque(true);
         setBorderPainted(false);
@@ -21,6 +24,9 @@ public class Square extends JButton {
         setSelected(false);
         setFocusPainted(false);
         setBackground((row + col) %2 == 0 ? Color.BLACK : Color.WHITE);
+        
+        this.row = row;
+        this.col = col;
     }
 
     public Piece getPiece() {
@@ -35,6 +41,22 @@ public class Square extends JButton {
         } else {
             this.setIcon(null);
         }
+    }
+
+    public int getRow() {
+        return row;
+    }
+
+    public void setRow(int row) {
+        this.row = row;
+    }
+
+    public int getCol() {
+        return col;
+    }
+
+    public void setCol(int col) {
+        this.col = col;
     }
     
 }
