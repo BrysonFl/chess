@@ -13,8 +13,13 @@ public class Queen extends Piece {
     }
 
     @Override
-    protected void validMovements() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public int[][] validMovements() {
+        return new int[][]{
+            { 1, 0 },
+            { 2, 0 },
+            { 1, 1 },
+            { 1, -1 }
+        };
     }
     
 }

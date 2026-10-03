@@ -13,8 +13,13 @@ public class King extends Piece {
     }
 
     @Override
-    protected void validMovements() {
-        
+    public int[][] validMovements() {
+        return new int[][]{
+            { 1, 0 },
+            { 2, 0 },
+            { 1, 1 },
+            { 1, -1 }
+        };
     }
     
 }

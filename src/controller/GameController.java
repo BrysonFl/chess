@@ -4,6 +4,7 @@ import view.Board;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import view.Square;
+import view.pieces.Pawn;
 
 /**
  *
@@ -12,6 +13,8 @@ import view.Square;
 public class GameController implements ActionListener {
     
     private Board board;
+    
+    private static int movements = 0;
     
     public GameController(Board board) {
         this.board = board;
@@ -24,7 +27,11 @@ public class GameController implements ActionListener {
     }
     
     private static void validatePieceMovements(Square square) {
+        int[][] pieceMovements = square.getPiece().validMovements();
         
+        if (square.getPiece() instanceof Pawn && movements == 0) {
+            movements++;
+        }
     }
    
 }
