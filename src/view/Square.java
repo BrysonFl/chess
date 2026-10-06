@@ -2,6 +2,7 @@ package view;
 
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Graphics;
 import javax.swing.JButton;
 
 import view.pieces.Piece;
@@ -20,10 +21,10 @@ public class Square extends JButton {
     public Square(int row, int col) {
         setOpaque(true);
         setBorderPainted(false);
-        setCursor(new Cursor(Cursor.HAND_CURSOR));
         setSelected(false);
         setFocusPainted(false);
-        setBackground((row + col) %2 == 0 ? Color.BLACK : Color.WHITE);
+        setBackground((row + col) %2 == 0 ? new Color(0xF0D9B5) : new Color(0xB58863));
+        setCursor(new Cursor(Cursor.HAND_CURSOR));
         
         this.row = row;
         this.col = col;
@@ -57,6 +58,22 @@ public class Square extends JButton {
 
     public void setCol(int col) {
         this.col = col;
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        
+        
+        super.paintComponent(g);
+    }
+    
+    public void resetBackground() {
+        setBackground((row + col) %2 == 0 ? new Color(0xF0D9B5) : new Color(0xB58863));
+    }
+
+    @Override
+    public String toString() {
+        return "Square{" + "piece=" + piece + ", row=" + row + ", col=" + col + '}';
     }
     
 }

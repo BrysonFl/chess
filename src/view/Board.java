@@ -1,7 +1,6 @@
 package view;
 
 import controller.GameController;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import javax.swing.JPanel;
@@ -22,7 +21,6 @@ public class Board extends JPanel {
     
     public Board() {
         setPreferredSize(new Dimension(1000, 1000));
-        setBackground(Color.red);
         loadSquaresBoard();
         initializeWhitePieces();
         initializeBlackPieces();
@@ -57,8 +55,8 @@ public class Board extends JPanel {
         squares[7][2].setPiece(new Bishop(true));
         squares[7][5].setPiece(new Bishop(true));
         
-        squares[7][4].setPiece(new Queen(true));
-        squares[7][3].setPiece(new King(true));
+        squares[7][4].setPiece(new King(true));
+        squares[7][3].setPiece(new Queen(true));
     }
     
     private void initializeBlackPieces() {
@@ -75,8 +73,12 @@ public class Board extends JPanel {
         squares[0][2].setPiece(new Bishop(false));
         squares[0][5].setPiece(new Bishop(false));
         
-        squares[0][4].setPiece(new Queen(false));
-        squares[0][3].setPiece(new King(false));
+        squares[0][4].setPiece(new King(false));
+        squares[0][3].setPiece(new Queen(false));
+    }
+
+    public Square[][] getSquares() {
+        return squares;
     }
     
 }

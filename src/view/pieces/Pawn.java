@@ -13,12 +13,12 @@ public class Pawn extends Piece {
     }
 
     @Override
-    public int[][] validMovements() {
+    public int[][] validMovements(int row, int col) {
         return new int[][]{
-            { 1, 0 },
-            { 2, 0 },
-            { 1, 1 },
-            { 1, -1 }
+            { row - 1, col },
+            { row - 2, col },
+            /*{ 1, col + 1 },
+            { 1, col - 1 }*/
         };
     }
     

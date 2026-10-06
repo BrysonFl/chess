@@ -13,7 +13,7 @@ public class Queen extends Piece {
     }
 
     @Override
-    public int[][] validMovements() {
+    public int[][] validMovements(int row, int col) {
         return new int[][]{
             { 1, 0 },
             { 2, 0 },
