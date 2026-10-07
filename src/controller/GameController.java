@@ -1,8 +1,8 @@
 package controller;
 
-import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 
 import view.Board;
 import view.Square;
@@ -13,9 +13,11 @@ import view.Square;
  */
 public class GameController implements ActionListener {
     
-    private Board board;
+    private final Board board;
     
     private static int movements = 0;
+    
+    private static Square beforeSquare;
     
     public GameController(Board board) {
         this.board = board;
@@ -25,29 +27,48 @@ public class GameController implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         Square currentSquare = (Square) e.getSource();
         
+        if (beforeSquare != null && currentSquare.isHighlight()) {
+            movePiece(currentSquare);
+            beforeSquare = null;
+            return;
+        }
+        
         if (currentSquare.getPiece() != null) {
             validatePieceMovements(currentSquare);
-        } else {
-            clearHighlights();
+            beforeSquare = currentSquare;
         }
+        
+        if (currentSquare.getPiece() == null && !currentSquare.isHighlight()) {
+            clearHighlights();
+            beforeSquare = null;
+        }
+    }
+    
+    private void movePiece(Square currentSquare) {
+        currentSquare.setPiece(beforeSquare.getPiece());
+        beforeSquare.setPiece(null);
+        clearHighlights();
+        movements++;
     }
     
     private void validatePieceMovements(Square square) {
         clearHighlights();
         
-        int[][] pieceMovements = square.getPiece().validMovements(square.getRow(), square.getCol());
+        List<Integer[]> pieceMovements = square.getPiece()
+                .validMovements(square.getRow(), square.getCol(), this.board);
         
-        for (int[] moves : pieceMovements) {
-            this.board.getSquares()[moves[0]][moves[1]].setBackground(Color.BLUE);
+        for (Integer[] move : pieceMovements) {
+            int row = move[0];
+            int col = move[1];
+            
+            board.getSquares()[row][col].setHighlight(true);
         }
-        
-        square.setBackground(new Color(0, 0, 0, 100));
     }
     
     private void clearHighlights() {
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
-                this.board.getSquares()[row][col].resetBackground();
+                board.getSquares()[row][col].setHighlight(false);
             }
         }
     }

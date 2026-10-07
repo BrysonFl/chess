@@ -1,6 +1,9 @@
 package view.pieces;
 
 import enums.PieceType;
+import java.util.ArrayList;
+import java.util.List;
+import view.Board;
 
 /**
  *
@@ -13,13 +16,8 @@ public class Queen extends Piece {
     }
 
     @Override
-    public int[][] validMovements(int row, int col) {
-        return new int[][]{
-            { 1, 0 },
-            { 2, 0 },
-            { 1, 1 },
-            { 1, -1 }
-        };
+    public List<Integer[]> validMovements(int row, int col, Board board) {
+        return new ArrayList<>();
     }
     
 }

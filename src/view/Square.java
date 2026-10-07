@@ -3,6 +3,8 @@ package view;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import javax.swing.JButton;
 
 import view.pieces.Piece;
@@ -17,6 +19,8 @@ public class Square extends JButton {
     
     private int row;
     private int col;
+    
+    private boolean highlight = false;
     
     public Square(int row, int col) {
         setOpaque(true);
@@ -60,15 +64,31 @@ public class Square extends JButton {
         this.col = col;
     }
 
+    public void setHighlight(boolean highlight) {
+        this.highlight = highlight;
+        repaint();
+    }
+
+    public boolean isHighlight() {
+        return highlight;
+    }
+
     @Override
     protected void paintComponent(Graphics g) {
-        
-        
         super.paintComponent(g);
-    }
-    
-    public void resetBackground() {
-        setBackground((row + col) %2 == 0 ? new Color(0xF0D9B5) : new Color(0xB58863));
+        
+        if (highlight) {
+            Graphics2D g2D = (Graphics2D) g.create();
+            g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2D.setColor(new Color(0, 0, 0, 85));
+            
+            int diameter = Math.min(getWidth(), getHeight() / 4);
+            int x = (getWidth() - diameter) / 2;
+            int y = (getHeight() - diameter) / 2;
+            
+            g2D.fillOval(x, y, diameter, diameter);
+            g2D.dispose();
+        }
     }
 
     @Override

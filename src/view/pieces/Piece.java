@@ -3,7 +3,9 @@ package view.pieces;
 import enums.PieceType;
 import java.awt.Image;
 import java.net.URL;
+import java.util.List;
 import javax.swing.ImageIcon;
+import view.Board;
 
 /**
  *
@@ -14,10 +16,10 @@ public abstract class Piece {
     private ImageIcon icon;
     private final PieceType pieceType;
     
-    private final boolean isWhite;
+    private final boolean white;
     
     protected Piece(boolean isWhite, PieceType pieceType) {
-        this.isWhite = isWhite;
+        this.white = isWhite;
         this.pieceType = pieceType;
         loadIcon(isWhite);
     }
@@ -43,10 +45,15 @@ public abstract class Piece {
         return icon;
     }
 
-    public boolean isIsWhite() {
-        return isWhite;
+    public boolean isWhite() {
+        return white;
     }
     
-    public abstract int[][] validMovements(int row, int col);
+    public abstract List<Integer[]> validMovements(int row, int col, Board board);
+
+    @Override
+    public String toString() {
+        return "Piece{" + "icon=" + icon + ", pieceType=" + pieceType + ", isWhite=" + white + '}';
+    }
     
 }

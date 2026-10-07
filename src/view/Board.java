@@ -1,6 +1,7 @@
 package view;
 
 import controller.GameController;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import javax.swing.JPanel;
