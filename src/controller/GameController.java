@@ -6,6 +6,8 @@ import java.util.List;
 
 import view.Board;
 import view.Square;
+import view.pieces.Pawn;
+import view.pieces.Piece;
 
 /**
  *
@@ -15,7 +17,10 @@ public class GameController implements ActionListener {
     
     private final Board board;
     
-    private static int movements = 0;
+    private static boolean whitesMove = true;
+    
+    private static int generalMovements;
+    private static int movementsWithoutCaptures;
     
     private static Square beforeSquare;
     
@@ -26,6 +31,8 @@ public class GameController implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         Square currentSquare = (Square) e.getSource();
+        
+        System.out.println("beforeSquare " + beforeSquare);
         
         if (beforeSquare != null && currentSquare.isHighlight()) {
             movePiece(currentSquare);
@@ -45,24 +52,38 @@ public class GameController implements ActionListener {
     }
     
     private void movePiece(Square currentSquare) {
+        Piece pieceMoved = beforeSquare.getPiece();
+        
+        if (pieceMoved instanceof Pawn) {
+            if (beforeSquare.getCol() != currentSquare.getCol() && currentSquare.getPiece() == null) {
+                board.getSquares()[beforeSquare.getRow()][currentSquare.getCol()].setPiece(null);
+            }
+        }
+        
         currentSquare.setPiece(beforeSquare.getPiece());
         beforeSquare.setPiece(null);
         clearHighlights();
-        movements++;
+        generalMovements++;
+        whitesMove = !whitesMove;
     }
     
     private void validatePieceMovements(Square square) {
         clearHighlights();
         
-        List<Integer[]> pieceMovements = square.getPiece()
+        boolean isCorrectMove = (whitesMove && square.getPiece().isWhite()) || (!whitesMove && !square.getPiece().isWhite());
+        
+        if (isCorrectMove) {
+            List<Integer[]> pieceMovements = square.getPiece()
                 .validMovements(square.getRow(), square.getCol(), this.board);
         
-        for (Integer[] move : pieceMovements) {
-            int row = move[0];
-            int col = move[1];
-            
-            board.getSquares()[row][col].setHighlight(true);
+            for (Integer[] move : pieceMovements) {
+                int row = move[0];
+                int col = move[1];
+
+                board.getSquares()[row][col].setHighlight(true);
+            }
         }
+        
     }
     
     private void clearHighlights() {
