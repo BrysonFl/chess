@@ -70,9 +70,9 @@ public class GameController implements ActionListener {
     private void validatePieceMovements(Square square) {
         clearHighlights();
         
-        boolean isCorrectMove = (whitesMove && square.getPiece().isWhite()) || (!whitesMove && !square.getPiece().isWhite());
+        boolean rightTurn = (whitesMove && square.getPiece().isWhite()) || (!whitesMove && !square.getPiece().isWhite());
         
-        if (isCorrectMove) {
+        if (rightTurn) {
             List<Integer[]> pieceMovements = square.getPiece()
                 .validMovements(square.getRow(), square.getCol(), this.board);
         

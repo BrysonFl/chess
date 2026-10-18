@@ -38,18 +38,21 @@ public class Pawn extends Piece {
         }
         
         int[] captureCols = new int[]{ col - 1, col + 1};
-            
+        
         for (int captureSingleCol : captureCols) {
-            if (squares[targetRow][captureSingleCol].getPiece() != null && squares[targetRow][captureSingleCol].getPiece().isWhite() != this.isWhite()) {
+            if (UtilValidations.validateBoard(targetRow, captureSingleCol)
+                    && squares[targetRow][captureSingleCol].getPiece() != null
+                    && squares[targetRow][captureSingleCol].getPiece().isWhite() != this.isWhite()) {
                 movements.add(new Integer[]{ targetRow, captureSingleCol });
             }
         }
         
         int rowPassant = isWhite() ? 3 : 4;
-        
+
         if (rowPassant == row) {
             for (int captureSingleCol : captureCols) {
-                if (row == rowPassant && squares[row][captureSingleCol].getPiece() != null && squares[row][captureSingleCol].getPiece().isWhite() != this.isWhite()) {
+                if (UtilValidations.validateBoard(targetRow, captureSingleCol) && row == rowPassant && squares[row][captureSingleCol].getPiece() != null
+                        && squares[row][captureSingleCol].getPiece().isWhite() != this.isWhite()) {
                     movements.add(new Integer[]{ targetRow, captureSingleCol });
                 }
             }
