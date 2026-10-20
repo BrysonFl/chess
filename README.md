@@ -1,4 +1,5 @@
 # ♟️ Chess Royale Game
+Proyecto desarrollado en Java para la materia de Diseño y Programación Orientada a Objetos
 
 ## Class diagram
 
