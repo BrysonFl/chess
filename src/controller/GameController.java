@@ -32,8 +32,6 @@ public class GameController implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         Square currentSquare = (Square) e.getSource();
         
-        System.out.println("beforeSquare " + beforeSquare);
-        
         if (beforeSquare != null && currentSquare.isHighlight()) {
             movePiece(currentSquare);
             beforeSquare = null;

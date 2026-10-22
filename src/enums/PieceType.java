@@ -3,6 +3,7 @@ package enums;
 /**
  *
  * @author brysonfl
+ * Clase especial que permite obtener el primer la primera letra del nombre de la pieza
  */
 public enum PieceType {
     PAWN("P"),

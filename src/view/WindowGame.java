@@ -6,7 +6,8 @@ import javax.swing.JFrame;
 
 /**
  *
- * @author brysonfl
+ * @author brysonfl 
+ * Clase que realiza la creación de la ventana contenedora del juego
  */
 public class WindowGame extends JFrame {
     

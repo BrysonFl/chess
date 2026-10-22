@@ -4,6 +4,7 @@ import view.WindowGame;
 /**
  *
  * @author brysonfl
+ * Clase inicializadora del juego
  */
 public class GameMain {
     
