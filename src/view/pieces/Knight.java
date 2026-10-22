@@ -36,6 +36,22 @@ public class Knight extends Piece {
             movements.add(new Integer[]{ row + 2, col - 1 });
         }
         
+        if (UtilValidations.validateBoard(row - 1, col + 2) && board.getSquares()[row - 1][col + 2].getPiece() == null) {
+            movements.add(new Integer[]{ row - 1, col + 2 });
+        }
+        
+        if (UtilValidations.validateBoard(row - 1, col - 2) && board.getSquares()[row - 1][col - 2].getPiece() == null) {
+            movements.add(new Integer[]{ row - 1, col - 2 });
+        }
+        
+        if (UtilValidations.validateBoard(row + 1, col + 2) && board.getSquares()[row + 1][col + 2].getPiece() == null) {
+            movements.add(new Integer[]{ row + 1, col + 2 });
+        }
+        
+        if (UtilValidations.validateBoard(row + 1, col - 2) && board.getSquares()[row + 1][col - 2].getPiece() == null) {
+            movements.add(new Integer[]{ row + 1, col - 2 });
+        }
+        
         return movements;
     }
     

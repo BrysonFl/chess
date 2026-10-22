@@ -42,9 +42,9 @@ public class Board extends JPanel {
     }
     
     private void initializeWhitePieces() {
-        for (int col = 0; col < squares.length; col++) {
+        /*for (int col = 0; col < squares.length; col++) {
             squares[6][col].setPiece(new Pawn(true));
-        }
+        }*/
         
         squares[7][0].setPiece(new Rook(true));
         squares[7][7].setPiece(new Rook(true));
