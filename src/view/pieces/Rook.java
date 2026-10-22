@@ -17,6 +17,8 @@ public class Rook extends Piece {
 
     @Override
     public List<Integer[]> validMovements(int row, int col, Board board) {
+        List<Integer[]> movements = new ArrayList<>();
+        
         return new ArrayList<>();
     }
     
