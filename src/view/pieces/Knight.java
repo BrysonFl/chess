@@ -3,6 +3,7 @@ package view.pieces;
 import enums.PieceType;
 import java.util.ArrayList;
 import java.util.List;
+import utils.UtilValidations;
 import view.Board;
 
 /**
@@ -17,7 +18,25 @@ public class Knight extends Piece {
 
     @Override
     public List<Integer[]> validMovements(int row, int col, Board board) {
-        return new ArrayList<>();
+        List<Integer[]> movements = new ArrayList<>();
+        
+        if (UtilValidations.validateBoard(row - 2, col + 1) && board.getSquares()[row - 2][col + 1].getPiece() == null) {
+            movements.add(new Integer[]{ row - 2, col + 1 });
+        }
+        
+        if (UtilValidations.validateBoard(row - 2, col - 1) && board.getSquares()[row - 2][col - 1].getPiece() == null) {
+            movements.add(new Integer[]{ row - 2, col - 1 });
+        }
+        
+        if (UtilValidations.validateBoard(row + 2, col + 1) && board.getSquares()[row + 2][col + 1].getPiece() == null) {
+            movements.add(new Integer[]{ row + 2, col + 1 });
+        }
+        
+        if (UtilValidations.validateBoard(row + 2, col - 1) && board.getSquares()[row + 2][col - 1].getPiece() == null) {
+            movements.add(new Integer[]{ row + 2, col - 1 });
+        }
+        
+        return movements;
     }
     
 }
