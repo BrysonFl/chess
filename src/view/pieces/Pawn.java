@@ -8,15 +8,36 @@ import utils.UtilValidations;
 import view.Square;
 
 /**
- *
+ * Clase representativa de la pieza Peón. 
+ * Gestiona las reglas de movimiento específicas del peón, incluyendo el avance 
+ * de una o dos casillas desde su posición inicial, las capturas diagonales estándar 
+ * y la regla especial de captura al paso (en passant).
+ * 
  * @author brysonfl
  */
 public class Pawn extends Piece {
     
+    /**
+     * Construye un nuevo peón con el color especificado.
+     * 
+     * @param isWhite Define si el peón es blanco ({@code true}) o negro ({@code false}).
+     */
     public Pawn(boolean isWhite) {
         super(isWhite, PieceType.PAWN);
     }
 
+    /**
+     * Calcula y retorna una lista con todos los movimientos válidos y legales disponibles 
+     * para el peón desde su posición actual en el tablero. Esto incluye avanzar hacia adelante 
+     * (una o dos casillas si está en su fila inicial y el camino está libre), capturar piezas 
+     * enemigas en diagonal, y la captura al paso cuando corresponde.
+     * 
+     * @param row   La fila actual en la que se encuentra el peón.
+     * @param col   La columna actual en la que se encuentra el peón.
+     * @param board El tablero actual del juego, utilizado para verificar el estado de las casillas y piezas.
+     * @return Una lista de arreglos de enteros donde cada elemento representa las coordenadas 
+     *         {@code [fila, columna]} de una casilla válida a la que el peón puede desplazarse.
+     */
     @Override
     public List<Integer[]> validMovements(int row, int col, Board board) {
         List<Integer[]> movements = new ArrayList<>();

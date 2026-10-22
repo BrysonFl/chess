@@ -7,21 +7,34 @@ import utils.UtilValidations;
 import view.Board;
 
 /**
- *  Representación en clase de la pieza alfil
+ * Clase representativa de la pieza Alfil. 
+ * Gestiona los movimientos en diagonal del alfil, evaluando las cuatro direcciones 
+ * diagonales posibles desde su posición actual en el tablero.
+ * 
  * @author brysonfl
  */
 public class Bishop extends Piece {
     
+    /**
+     * Construye un nuevo alfil con el color especificado.
+     * 
+     * @param isWhite Define si el alfil es blanco ({@code true}) o negro ({@code false}).
+     */
     public Bishop(boolean isWhite) {
         super(isWhite, PieceType.BISHOP);
     }
 
     /**
-     * Esta implementación valida las casillas en donde el alfil puede moverse
-     * @param row
-     * @param col
-     * @param board
-     * @return Los movimientos válidos para el alfil
+     * Calcula y retorna una lista con todos los movimientos válidos y legales disponibles 
+     * para el alfil desde su posición actual en el tablero. El alfil puede moverse cualquier 
+     * número de casillas desocupadas en línea recta diagonal en cualquiera de las cuatro 
+     * direcciones posibles.
+     * 
+     * @param row   La fila actual en la que se encuentra el alfil.
+     * @param col   La columna actual en la que se encuentra el alfil.
+     * @param board El tablero actual del juego, utilizado para verificar el estado de las casillas.
+     * @return Una lista de arreglos de enteros donde cada elemento representa las coordenadas 
+     *         {@code [fila, columna]} de una casilla válida a la que el alfil puede desplazarse.
      */
     @Override
     public List<Integer[]> validMovements(int row, int col, Board board) {
