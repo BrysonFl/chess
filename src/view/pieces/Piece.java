@@ -67,6 +67,22 @@ public abstract class Piece {
         return icon;
     }
 
+    public PieceType getPieceType() {
+        return pieceType;
+    }
+
+    /** Símbolo de la pieza para el historial de jugadas en español. */
+    public String getMovementSymbol() {
+        return switch (pieceType) {
+            case PAWN -> "P";
+            case ROOK -> "T";
+            case KNIGHT -> "C";
+            case BISHOP -> "A";
+            case QUEEN -> "D";
+            case KING -> "R";
+        };
+    }
+
     /**
      * Indica si la pieza pertenece al bando blanco.
      * 
@@ -87,6 +103,23 @@ public abstract class Piece {
      *         {@code [fila, columna]} de una casilla válida a la que la pieza puede desplazarse.
      */
     public abstract List<Integer[]> validMovements(int row, int col, Board board);
+
+    /** Recorre direcciones hasta el primer obstáculo, incluyendo capturas enemigas. */
+    protected List<Integer[]> directionalMovements(int row, int col, Board board,
+            int[][] directions, boolean sliding) {
+        List<Integer[]> moves = new java.util.ArrayList<>();
+        for (int[] direction : directions) {
+            int r = row + direction[0], c = col + direction[1];
+            while (utils.UtilValidations.validateBoard(r, c)) {
+                Piece target = board.getSquares()[r][c].getPiece();
+                if (target == null || target.isWhite() != isWhite()) moves.add(new Integer[]{r, c});
+                if (target != null || !sliding) break;
+                r += direction[0];
+                c += direction[1];
+            }
+        }
+        return moves;
+    }
 
     /**
      * Retorna una representación en cadena de texto del objeto {@code Piece}, 

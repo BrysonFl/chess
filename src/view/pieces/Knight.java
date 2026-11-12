@@ -1,9 +1,7 @@
 package view.pieces;
 
 import enums.PieceType;
-import java.util.ArrayList;
 import java.util.List;
-import utils.UtilValidations;
 import view.Board;
 
 /**
@@ -25,7 +23,7 @@ public class Knight extends Piece {
     }
 
     /**
-     * Calcula y retorna una lista con todos los movimientos válidos y legales disponibles 
+     * Calcula y retorna una lista con todos los movimientos posibles disponibles
      * para el caballo desde su posición actual en el tablero. El caballo se mueve en "L" 
      * (dos casillas en una dirección y una perpendicular, o viceversa) y tiene la capacidad 
      * de saltar por encima de otras piezas.
@@ -38,41 +36,7 @@ public class Knight extends Piece {
      */
     @Override
     public List<Integer[]> validMovements(int row, int col, Board board) {
-        List<Integer[]> movements = new ArrayList<>();
-        
-        if (UtilValidations.validateBoard(row - 2, col + 1) && board.getSquares()[row - 2][col + 1].getPiece() == null) {
-            movements.add(new Integer[]{ row - 2, col + 1 });
-        }
-        
-        if (UtilValidations.validateBoard(row - 2, col - 1) && board.getSquares()[row - 2][col - 1].getPiece() == null) {
-            movements.add(new Integer[]{ row - 2, col - 1 });
-        }
-        
-        if (UtilValidations.validateBoard(row + 2, col + 1) && board.getSquares()[row + 2][col + 1].getPiece() == null) {
-            movements.add(new Integer[]{ row + 2, col + 1 });
-        }
-        
-        if (UtilValidations.validateBoard(row + 2, col - 1) && board.getSquares()[row + 2][col - 1].getPiece() == null) {
-            movements.add(new Integer[]{ row + 2, col - 1 });
-        }
-        
-        if (UtilValidations.validateBoard(row - 1, col + 2) && board.getSquares()[row - 1][col + 2].getPiece() == null) {
-            movements.add(new Integer[]{ row - 1, col + 2 });
-        }
-        
-        if (UtilValidations.validateBoard(row - 1, col - 2) && board.getSquares()[row - 1][col - 2].getPiece() == null) {
-            movements.add(new Integer[]{ row - 1, col - 2 });
-        }
-        
-        if (UtilValidations.validateBoard(row + 1, col + 2) && board.getSquares()[row + 1][col + 2].getPiece() == null) {
-            movements.add(new Integer[]{ row + 1, col + 2 });
-        }
-        
-        if (UtilValidations.validateBoard(row + 1, col - 2) && board.getSquares()[row + 1][col - 2].getPiece() == null) {
-            movements.add(new Integer[]{ row + 1, col - 2 });
-        }
-        
-        return movements;
+        return directionalMovements(row, col, board, new int[][]{ {-2,-1}, {-2,1}, {2,-1}, {2,1}, {-1,-2}, {-1,2}, {1,-2}, {1,2} }, false);
     }
     
 }

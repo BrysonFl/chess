@@ -5,6 +5,7 @@ import java.awt.Cursor;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.RadialGradientPaint;
 import javax.swing.JButton;
 
 import view.pieces.Piece;
@@ -25,6 +26,7 @@ public class Square extends JButton {
     private int col;
     
     private boolean highlight = false;
+    private boolean inCheck;
     
     /**
      * Construye una nueva casilla indicando su posición en el tablero. 
@@ -126,6 +128,17 @@ public class Square extends JButton {
         return highlight;
     }
 
+    public boolean isInCheck() {
+        return inCheck;
+    }
+
+    public void setInCheck(boolean inCheck) {
+        if (this.inCheck != inCheck) {
+            this.inCheck = inCheck;
+            repaint();
+        }
+    }
+
     /**
      * Sobrescribe el método de renderizado para pintar un indicador visual 
      * (un círculo semitransparente) sobre la casilla cuando se encuentra resaltada.
@@ -135,6 +148,22 @@ public class Square extends JButton {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+
+        if (inCheck && piece != null && getWidth() > 0 && getHeight() > 0) {
+            Graphics2D glow = (Graphics2D) g.create();
+            float radius = Math.min(getWidth(), getHeight()) * 0.5f;
+            glow.setPaint(new RadialGradientPaint(getWidth() / 2f, getHeight() / 2f,
+                    radius, new float[]{0f, 0.5f, 0.75f, 1f},
+                    new Color[]{new Color(255, 0, 0, 0), new Color(255, 0, 0, 0),
+                        new Color(230, 20, 20, 190), new Color(255, 0, 0, 0)}));
+            glow.fillRect(0, 0, getWidth(), getHeight());
+            // Conserva la pieza nítida por encima del halo.
+            if (getIcon() != null) {
+                getIcon().paintIcon(this, glow, (getWidth() - getIcon().getIconWidth()) / 2,
+                        (getHeight() - getIcon().getIconHeight()) / 2);
+            }
+            glow.dispose();
+        }
         
         if (highlight) {
             Graphics2D g2D = (Graphics2D) g.create();

@@ -5,6 +5,7 @@ import java.awt.event.ActionListener;
 import java.util.List;
 
 import view.Board;
+import utils.CheckRules;
 import view.Square;
 import view.pieces.Pawn;
 import view.pieces.Piece;
@@ -42,6 +43,7 @@ public class GameController implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         Square currentSquare = (Square) e.getSource();
+        CheckRules.updateIndicators(board);
         
         if (beforeSquare != null && currentSquare.isHighlight()) {
             movePiece(currentSquare);
@@ -65,10 +67,17 @@ public class GameController implements ActionListener {
      * especificada, gestionando reglas especiales del juego (como la captura al paso en los peones),
      * actualizando el estado del tablero, incrementando el contador de movimientos y cambiando el turno.
      * 
-     * @param currentSquare 
+     * @param currentSquare Es el cuadrado al cuál se le dio clic actualmente
      */
     private void movePiece(Square currentSquare) {
         Piece pieceMoved = beforeSquare.getPiece();
+        boolean enPassant = pieceMoved instanceof Pawn
+                && beforeSquare.getCol() != currentSquare.getCol()
+                && currentSquare.getPiece() == null;
+        boolean capture = currentSquare.getPiece() != null || enPassant;
+        String movement = pieceMoved.getMovementSymbol() + " "
+                + coordinates(beforeSquare) + (capture ? " × " : " → ")
+                + coordinates(currentSquare) + (enPassant ? " a.p." : "");
         
         if (pieceMoved instanceof Pawn) {
             if (beforeSquare.getCol() != currentSquare.getCol() && currentSquare.getPiece() == null) {
@@ -79,10 +88,17 @@ public class GameController implements ActionListener {
         currentSquare.setPiece(beforeSquare.getPiece());
         beforeSquare.setPiece(null);
         clearHighlights();
+        CheckRules.updateIndicators(board);
+        if (CheckRules.isInCheck(board, !pieceMoved.isWhite())) movement += " +";
+        board.getMovementsPanel().addMovement(pieceMoved.isWhite(), movement);
         generalMovements++;
         whitesMove = !whitesMove;
     }
     
+    private static String coordinates(Square square) {
+        return "" + (char) ('a' + square.getCol()) + (8 - square.getRow());
+    }
+
     /**
      * Valida y resalta en el tablero los movimientos legales disponibles para la pieza 
      * ubicada en la casilla especificada, siempre y cuando sea el turno del jugador 
@@ -103,7 +119,10 @@ public class GameController implements ActionListener {
                 int row = move[0];
                 int col = move[1];
 
-                board.getSquares()[row][col].setHighlight(true);
+                Square destination = board.getSquares()[row][col];
+                if (CheckRules.leavesKingSafe(board, square, destination)) {
+                    destination.setHighlight(true);
+                }
             }
         }
         

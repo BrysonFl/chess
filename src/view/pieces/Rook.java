@@ -1,9 +1,7 @@
 package view.pieces;
 
 import enums.PieceType;
-import java.util.ArrayList;
 import java.util.List;
-import utils.UtilValidations;
 import view.Board;
 
 /**
@@ -20,9 +18,9 @@ public class Rook extends Piece {
     }
 
     /**
-     * Calcula y retorna una lista con todos los movimientos válidos y legales disponibles 
+     * Calcula y retorna una lista con todos los movimientos posibles disponibles
      * para la torre desde su posición actual en el tablero. La torre puede moverse 
-     * cualquier número de casillas desocupadas en línea recta vertical u horizontal 
+     * cualquier número de casillas libres, incluyendo la primera captura enemiga, en línea recta vertical u horizontal
      * (hacia arriba, abajo, izquierda o derecha).
      * 
      * @param row   La fila actual en la que se encuentra la torre.
@@ -33,37 +31,7 @@ public class Rook extends Piece {
      */
     @Override
     public List<Integer[]> validMovements(int row, int col, Board board) {
-        List<Integer[]> movements = new ArrayList<>();
-        
-        for (int targetRow = row - 1; targetRow >= 0; targetRow--) {
-            if (!UtilValidations.validateBoard(targetRow, col)) break;
-            if (board.getSquares()[targetRow][col].getPiece() != null) break;
-            
-            movements.add(new Integer[]{ targetRow, col });
-        }
-        
-        for (int targetRow = row + 1; targetRow < 8; targetRow++) {
-            if (!UtilValidations.validateBoard(targetRow, col)) break;
-            if (board.getSquares()[targetRow][col].getPiece() != null) break;
-            
-            movements.add(new Integer[]{ targetRow, col });
-        }
-        
-        for (int targetCol = col - 1; targetCol >= 0; targetCol--) {
-            if (!UtilValidations.validateBoard(row, targetCol)) break;
-            if (board.getSquares()[row][targetCol].getPiece() != null) break;
-            
-            movements.add(new Integer[]{ row, targetCol });
-        }
-        
-        for (int targetCol = col + 1; targetCol < 8; targetCol++) {
-            if (!UtilValidations.validateBoard(row, targetCol)) break;
-            if (board.getSquares()[row][targetCol].getPiece() != null) break;
-            
-            movements.add(new Integer[]{ row, targetCol });
-        }
-        
-        return movements;
+        return directionalMovements(row, col, board, new int[][]{ {-1,0}, {1,0}, {0,-1}, {0,1} }, true);
     }
     
 }

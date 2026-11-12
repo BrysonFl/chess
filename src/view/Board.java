@@ -21,6 +21,7 @@ import view.pieces.Rook;
 public class Board extends JPanel {
     
     private Square[][] squares;
+    private final MovementsPanel movementsPanel = new MovementsPanel();
     
     /**
      * Construye un nuevo tablero de ajedrez configurando su tamaño preferido, 
@@ -29,6 +30,8 @@ public class Board extends JPanel {
      */
     public Board() {
         setPreferredSize(new Dimension(1000, 1000));
+        setMaximumSize(new Dimension(1000, 1000));
+        setMinimumSize(new Dimension(0, 0));
         loadSquaresBoard();
         initializeWhitePieces();
         initializeBlackPieces();
@@ -93,6 +96,11 @@ public class Board extends JPanel {
         
         squares[0][4].setPiece(new King(false));
         squares[0][3].setPiece(new Queen(false));
+    }
+
+    /** Obtiene el historial asociado a esta partida. */
+    public MovementsPanel getMovementsPanel() {
+        return movementsPanel;
     }
 
     /**

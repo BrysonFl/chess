@@ -1,9 +1,7 @@
 package view.pieces;
 
 import enums.PieceType;
-import java.util.ArrayList;
 import java.util.List;
-import utils.UtilValidations;
 import view.Board;
 
 /**
@@ -20,9 +18,9 @@ public class Queen extends Piece {
     }
 
     /**
-     * Calcula y retorna una lista con todos los movimientos válidos y legales disponibles 
+     * Calcula y retorna una lista con todos los movimientos posibles disponibles
      * para la reina desde su posición actual en el tablero. La reina puede moverse 
-     * cualquier número de casillas desocupadas en línea recta en cualquier dirección 
+     * cualquier número de casillas libres, incluyendo la primera captura enemiga, en línea recta en cualquier dirección
      * (horizontal, vertical y diagonal).
      * 
      * @param row   La fila actual en la que se encuentra la reina.
@@ -33,86 +31,7 @@ public class Queen extends Piece {
      */
     @Override
     public List<Integer[]> validMovements(int row, int col, Board board) {
-        List<Integer[]> movements = new ArrayList<>();
-        
-        int targetCol;
-        targetCol = col;
-        
-        for (int targetRow = row - 1; targetRow >= 0; targetRow--) {
-            targetCol++;
-            
-            if (!UtilValidations.validateBoard(targetRow, targetCol)) break;
-            if (board.getSquares()[targetRow][targetCol].getPiece() != null) break;
-            
-            movements.add(new Integer[]{ targetRow, targetCol });
-        }
-        
-        targetCol = col;
-        
-        for (int targetRow = row - 1; targetRow >= 0; targetRow--) {
-            if (!UtilValidations.validateBoard(targetRow, targetCol)) break;
-            if (board.getSquares()[targetRow][targetCol].getPiece() != null) break;
-            
-            movements.add(new Integer[]{ targetRow, targetCol });
-        }
-        
-        targetCol = col;
-        
-        for (int targetRow = row - 1; targetRow >= 0; targetRow--) {
-            targetCol--;
-            
-            if (!UtilValidations.validateBoard(targetRow, targetCol)) break;
-            if (board.getSquares()[targetRow][targetCol].getPiece() != null) break;
-            
-            movements.add(new Integer[]{ targetRow, targetCol });
-        }
-        
-        targetCol = col;
-        
-        for (int targetRow = row + 1; targetRow < 8; targetRow++) {
-            targetCol--;
-            
-            if (!UtilValidations.validateBoard(targetRow, targetCol)) break;
-            if (board.getSquares()[targetRow][targetCol].getPiece() != null) break;
-            
-            movements.add(new Integer[]{ targetRow, targetCol });
-        }
-        
-        targetCol = col;
-        
-        for (int targetRow = row + 1; targetRow < 8; targetRow++) {
-            if (!UtilValidations.validateBoard(targetRow, targetCol)) break;
-            if (board.getSquares()[targetRow][targetCol].getPiece() != null) break;
-            
-            movements.add(new Integer[]{ targetRow, targetCol });
-        }
-        
-        targetCol = col;
-        
-        for (int targetRow = row + 1; targetRow < 8; targetRow++) {
-            targetCol++;
-            
-            if (!UtilValidations.validateBoard(targetRow, targetCol)) break;
-            if (board.getSquares()[targetRow][targetCol].getPiece() != null) break;
-            
-            movements.add(new Integer[]{ targetRow, targetCol });
-        }
-        
-        for (int targetColFor = col + 1; targetColFor < 8; targetColFor++) {
-            if (!UtilValidations.validateBoard(row, targetCol)) break;
-            if (board.getSquares()[row][targetCol].getPiece() != null) break;
-            
-            movements.add(new Integer[]{ row, targetColFor });
-        }
-        
-        for (int targetColFor = col - 1; targetColFor >= 0; targetColFor--) {
-            if (!UtilValidations.validateBoard(row, targetCol)) break;
-            if (board.getSquares()[row][targetCol].getPiece() != null) break;
-            
-            movements.add(new Integer[]{ row, targetColFor });
-        }
-        
-        return movements;
+        return directionalMovements(row, col, board, new int[][]{ {-1,0}, {1,0}, {0,-1}, {0,1}, {-1,-1}, {-1,1}, {1,-1}, {1,1} }, true);
     }
     
 }
