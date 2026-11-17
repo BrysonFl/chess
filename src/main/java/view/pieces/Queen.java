@@ -42,7 +42,12 @@ public class Queen extends Piece {
             targetCol++;
             
             if (!UtilValidations.validateBoard(targetRow, targetCol)) break;
-            if (board.getSquares()[targetRow][targetCol].getPiece() != null) break;
+            if (board.getSquares()[targetRow][targetCol].getPiece() != null) {
+                if (canCapture(board.getSquares()[targetRow][targetCol].getPiece())) {
+                    movements.add(new Integer[]{ targetRow, targetCol });
+                }
+                break;
+            }
             
             movements.add(new Integer[]{ targetRow, targetCol });
         }
@@ -51,7 +56,12 @@ public class Queen extends Piece {
         
         for (int targetRow = row - 1; targetRow >= 0; targetRow--) {
             if (!UtilValidations.validateBoard(targetRow, targetCol)) break;
-            if (board.getSquares()[targetRow][targetCol].getPiece() != null) break;
+            if (board.getSquares()[targetRow][targetCol].getPiece() != null) {
+                if (canCapture(board.getSquares()[targetRow][targetCol].getPiece())) {
+                    movements.add(new Integer[]{ targetRow, targetCol });
+                }
+                break;
+            }
             
             movements.add(new Integer[]{ targetRow, targetCol });
         }
@@ -62,7 +72,12 @@ public class Queen extends Piece {
             targetCol--;
             
             if (!UtilValidations.validateBoard(targetRow, targetCol)) break;
-            if (board.getSquares()[targetRow][targetCol].getPiece() != null) break;
+            if (board.getSquares()[targetRow][targetCol].getPiece() != null) {
+                if (canCapture(board.getSquares()[targetRow][targetCol].getPiece())) {
+                    movements.add(new Integer[]{ targetRow, targetCol });
+                }
+                break;
+            }
             
             movements.add(new Integer[]{ targetRow, targetCol });
         }
@@ -73,7 +88,12 @@ public class Queen extends Piece {
             targetCol--;
             
             if (!UtilValidations.validateBoard(targetRow, targetCol)) break;
-            if (board.getSquares()[targetRow][targetCol].getPiece() != null) break;
+            if (board.getSquares()[targetRow][targetCol].getPiece() != null) {
+                if (canCapture(board.getSquares()[targetRow][targetCol].getPiece())) {
+                    movements.add(new Integer[]{ targetRow, targetCol });
+                }
+                break;
+            }
             
             movements.add(new Integer[]{ targetRow, targetCol });
         }
@@ -82,7 +102,12 @@ public class Queen extends Piece {
         
         for (int targetRow = row + 1; targetRow < 8; targetRow++) {
             if (!UtilValidations.validateBoard(targetRow, targetCol)) break;
-            if (board.getSquares()[targetRow][targetCol].getPiece() != null) break;
+            if (board.getSquares()[targetRow][targetCol].getPiece() != null) {
+                if (canCapture(board.getSquares()[targetRow][targetCol].getPiece())) {
+                    movements.add(new Integer[]{ targetRow, targetCol });
+                }
+                break;
+            }
             
             movements.add(new Integer[]{ targetRow, targetCol });
         }
@@ -93,21 +118,36 @@ public class Queen extends Piece {
             targetCol++;
             
             if (!UtilValidations.validateBoard(targetRow, targetCol)) break;
-            if (board.getSquares()[targetRow][targetCol].getPiece() != null) break;
+            if (board.getSquares()[targetRow][targetCol].getPiece() != null) {
+                if (canCapture(board.getSquares()[targetRow][targetCol].getPiece())) {
+                    movements.add(new Integer[]{ targetRow, targetCol });
+                }
+                break;
+            }
             
             movements.add(new Integer[]{ targetRow, targetCol });
         }
         
         for (int targetColFor = col + 1; targetColFor < 8; targetColFor++) {
-            if (!UtilValidations.validateBoard(row, targetCol)) break;
-            if (board.getSquares()[row][targetCol].getPiece() != null) break;
+            if (!UtilValidations.validateBoard(row, targetColFor)) break;
+            if (board.getSquares()[row][targetColFor].getPiece() != null) {
+                if (canCapture(board.getSquares()[row][targetColFor].getPiece())) {
+                    movements.add(new Integer[]{ row, targetColFor });
+                }
+                break;
+            }
             
             movements.add(new Integer[]{ row, targetColFor });
         }
         
         for (int targetColFor = col - 1; targetColFor >= 0; targetColFor--) {
-            if (!UtilValidations.validateBoard(row, targetCol)) break;
-            if (board.getSquares()[row][targetCol].getPiece() != null) break;
+            if (!UtilValidations.validateBoard(row, targetColFor)) break;
+            if (board.getSquares()[row][targetColFor].getPiece() != null) {
+                if (canCapture(board.getSquares()[row][targetColFor].getPiece())) {
+                    movements.add(new Integer[]{ row, targetColFor });
+                }
+                break;
+            }
             
             movements.add(new Integer[]{ row, targetColFor });
         }

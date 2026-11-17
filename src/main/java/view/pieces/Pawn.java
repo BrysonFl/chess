@@ -63,7 +63,7 @@ public class Pawn extends Piece {
         for (int captureSingleCol : captureCols) {
             if (UtilValidations.validateBoard(targetRow, captureSingleCol)
                     && squares[targetRow][captureSingleCol].getPiece() != null
-                    && squares[targetRow][captureSingleCol].getPiece().isWhite() != this.isWhite()) {
+                    && canCapture(squares[targetRow][captureSingleCol].getPiece())) {
                 movements.add(new Integer[]{ targetRow, captureSingleCol });
             }
         }
@@ -72,8 +72,11 @@ public class Pawn extends Piece {
 
         if (rowPassant == row) {
             for (int captureSingleCol : captureCols) {
-                if (UtilValidations.validateBoard(targetRow, captureSingleCol) && row == rowPassant && squares[row][captureSingleCol].getPiece() != null
-                        && squares[row][captureSingleCol].getPiece().isWhite() != this.isWhite()) {
+                if (UtilValidations.validateBoard(targetRow, captureSingleCol)
+                        && squares[targetRow][captureSingleCol].getPiece() == null
+                        && board.getEnPassantSquare() == squares[row][captureSingleCol]
+                        && squares[row][captureSingleCol].getPiece() instanceof Pawn
+                        && canCapture(squares[row][captureSingleCol].getPiece())) {
                     movements.add(new Integer[]{ targetRow, captureSingleCol });
                 }
             }

@@ -5,8 +5,14 @@ import java.awt.event.ActionListener;
 import java.util.List;
 
 import view.Board;
+import view.MovementsPanel;
 import view.Square;
+import view.pieces.Bishop;
+import view.pieces.King;
+import view.pieces.Knight;
 import view.pieces.Pawn;
+import view.pieces.Queen;
+import view.pieces.Rook;
 import view.pieces.Piece;
 
 /**
@@ -19,6 +25,7 @@ import view.pieces.Piece;
 public class GameController implements ActionListener {
     
     private final Board board;
+    private final MovementsPanel movementsPanel;
     
     private static boolean whitesMove = true;
     
@@ -28,7 +35,12 @@ public class GameController implements ActionListener {
     private static Square beforeSquare;
     
     public GameController(Board board) {
+        this(board, null);
+    }
+
+    public GameController(Board board, MovementsPanel movementsPanel) {
         this.board = board;
+        this.movementsPanel = movementsPanel;
     }
 
     /**
@@ -76,13 +88,82 @@ public class GameController implements ActionListener {
             }
         }
         
+        if (movementsPanel != null) {
+            movementsPanel.addMovement(beforeSquare, currentSquare);
+        }
+        
+        board.setEnPassantSquare(pieceMoved instanceof Pawn
+                && Math.abs(beforeSquare.getRow() - currentSquare.getRow()) == 2 ? currentSquare : null);
         currentSquare.setPiece(beforeSquare.getPiece());
         beforeSquare.setPiece(null);
         clearHighlights();
         generalMovements++;
         whitesMove = !whitesMove;
+        validateKingsCheck();
     }
     
+    /**
+     * Actualiza el destello de los reyes según los ataques de las piezas contrarias.
+     */
+    private void validateKingsCheck() {
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                Square square = board.getSquares()[row][col];
+                square.setCheck(square.getPiece() instanceof King && isKingInCheck(square));
+            }
+        }
+    }
+
+    /**
+     * Comprueba si alguna pieza contraria amenaza la casilla del rey.
+     *
+     * @param kingSquare La casilla donde se encuentra el rey.
+     * @return {@code true} si el rey está en jaque.
+     */
+    private boolean isKingInCheck(Square kingSquare) {
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                Piece piece = board.getSquares()[row][col].getPiece();
+                if (piece == null || piece.isWhite() == kingSquare.getPiece().isWhite()) continue;
+
+                int rowDistance = kingSquare.getRow() - row;
+                int colDistance = kingSquare.getCol() - col;
+                int rows = Math.abs(rowDistance);
+                int cols = Math.abs(colDistance);
+
+                if (piece instanceof Pawn) {
+                    if (rowDistance == (piece.isWhite() ? -1 : 1) && cols == 1) return true;
+                } else if (piece instanceof Knight) {
+                    if ((rows == 2 && cols == 1) || (rows == 1 && cols == 2)) return true;
+                } else if (piece instanceof King) {
+                    if (rows <= 1 && cols <= 1) return true;
+                } else {
+                    boolean diagonal = rows == cols;
+                    boolean straight = rowDistance == 0 || colDistance == 0;
+                    boolean canAttack = (piece instanceof Bishop && diagonal)
+                            || (piece instanceof Rook && straight)
+                            || (piece instanceof Queen && (diagonal || straight));
+
+                    if (!canAttack) continue;
+
+                    int rowStep = Integer.signum(rowDistance);
+                    int colStep = Integer.signum(colDistance);
+                    int targetRow = row + rowStep;
+                    int targetCol = col + colStep;
+
+                    while (targetRow != kingSquare.getRow() || targetCol != kingSquare.getCol()) {
+                        if (board.getSquares()[targetRow][targetCol].getPiece() != null) break;
+                        targetRow += rowStep;
+                        targetCol += colStep;
+                    }
+
+                    if (targetRow == kingSquare.getRow() && targetCol == kingSquare.getCol()) return true;
+                }
+            }
+        }
+        return false;
+    }
+
     /**
      * Valida y resalta en el tablero los movimientos legales disponibles para la pieza 
      * ubicada en la casilla especificada, siempre y cuando sea el turno del jugador 
@@ -103,12 +184,50 @@ public class GameController implements ActionListener {
                 int row = move[0];
                 int col = move[1];
 
-                board.getSquares()[row][col].setHighlight(true);
+                if (isSafeMovement(square, board.getSquares()[row][col])) {
+                    board.getSquares()[row][col].setHighlight(true);
+                }
             }
         }
         
     }
     
+    /**
+     * Simula el movimiento para evitar dejar al propio rey en jaque.
+     * Restaura las piezas después de comprobar la posición, incluida la captura al paso.
+     *
+     * @param origin La casilla de origen.
+     * @param target La casilla de destino.
+     * @return {@code true} si el movimiento no deja al rey amenazado.
+     */
+    private boolean isSafeMovement(Square origin, Square target) {
+        Piece moved = origin.getPiece();
+        Piece captured = target.getPiece();
+        Square passant = null;
+        Piece passantPiece = null;
+        if (moved instanceof Pawn && origin.getCol() != target.getCol() && captured == null) {
+            passant = board.getSquares()[origin.getRow()][target.getCol()];
+            passantPiece = passant.getPiece();
+            passant.setPiece(null);
+        }
+        origin.setPiece(null);
+        target.setPiece(moved);
+        try {
+            for (int row = 0; row < 8; row++) {
+                for (int col = 0; col < 8; col++) {
+                    Square square = board.getSquares()[row][col];
+                    if (square.getPiece() instanceof King && square.getPiece().isWhite() == moved.isWhite()
+                            && isKingInCheck(square)) return false;
+                }
+            }
+            return true;
+        } finally {
+            origin.setPiece(moved);
+            target.setPiece(captured);
+            if (passant != null) passant.setPiece(passantPiece);
+        }
+    }
+
     /**
      * Limpia y desactiva el resaltado de todas las casillas del tablero, 
      * estableciendo su propiedad de highlight en falso.

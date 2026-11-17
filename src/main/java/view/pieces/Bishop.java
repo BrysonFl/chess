@@ -46,7 +46,12 @@ public class Bishop extends Piece {
             targetColRight++;
             
             if (!UtilValidations.validateBoard(targetRow, targetColRight)) break;
-            if (board.getSquares()[targetRow][targetColRight].getPiece() != null) break;
+            if (board.getSquares()[targetRow][targetColRight].getPiece() != null) {
+                if (canCapture(board.getSquares()[targetRow][targetColRight].getPiece())) {
+                    movements.add(new Integer[]{ targetRow, targetColRight });
+                }
+                break;
+            }
             
             movements.add(new Integer[]{ targetRow, targetColRight });
         }
@@ -55,7 +60,12 @@ public class Bishop extends Piece {
             targetColLeft--;
             
             if (!UtilValidations.validateBoard(targetRow, targetColLeft)) break;
-            if (board.getSquares()[targetRow][targetColLeft].getPiece() != null) break;
+            if (board.getSquares()[targetRow][targetColLeft].getPiece() != null) {
+                if (canCapture(board.getSquares()[targetRow][targetColLeft].getPiece())) {
+                    movements.add(new Integer[]{ targetRow, targetColLeft });
+                }
+                break;
+            }
             
             movements.add(new Integer[]{ targetRow, targetColLeft });
         }
@@ -67,7 +77,12 @@ public class Bishop extends Piece {
             targetColRight++;
             
             if (!UtilValidations.validateBoard(targetRow, targetColRight)) break;
-            if (board.getSquares()[targetRow][targetColRight].getPiece() != null) break;
+            if (board.getSquares()[targetRow][targetColRight].getPiece() != null) {
+                if (canCapture(board.getSquares()[targetRow][targetColRight].getPiece())) {
+                    movements.add(new Integer[]{ targetRow, targetColRight });
+                }
+                break;
+            }
             
             movements.add(new Integer[]{ targetRow, targetColRight });
         }
@@ -76,7 +91,12 @@ public class Bishop extends Piece {
             targetColLeft--;
             
             if (!UtilValidations.validateBoard(targetRow, targetColLeft)) break;
-            if (board.getSquares()[targetRow][targetColLeft].getPiece() != null) break;
+            if (board.getSquares()[targetRow][targetColLeft].getPiece() != null) {
+                if (canCapture(board.getSquares()[targetRow][targetColLeft].getPiece())) {
+                    movements.add(new Integer[]{ targetRow, targetColLeft });
+                }
+                break;
+            }
             
             movements.add(new Integer[]{ targetRow, targetColLeft });
         }

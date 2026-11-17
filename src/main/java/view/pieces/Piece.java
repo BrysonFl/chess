@@ -89,6 +89,16 @@ public abstract class Piece {
     public abstract List<Integer[]> validMovements(int row, int col, Board board);
 
     /**
+     * Comprueba si una pieza contraria puede ser capturada. El rey no se captura.
+     *
+     * @param piece La pieza que ocupa la casilla de destino.
+     * @return {@code true} si pertenece al contrario y no es un rey.
+     */
+    public boolean canCapture(Piece piece) {
+        return piece != null && piece.isWhite() != isWhite() && !(piece instanceof King);
+    }
+
+    /**
      * Retorna una representación en cadena de texto del objeto {@code Piece}, 
      * detallando su icono, tipo y color.
      * 

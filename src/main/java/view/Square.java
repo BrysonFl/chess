@@ -5,6 +5,8 @@ import java.awt.Cursor;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.RadialGradientPaint;
+import view.pieces.King;
 import javax.swing.JButton;
 
 import view.pieces.Piece;
@@ -25,6 +27,7 @@ public class Square extends JButton {
     private int col;
     
     private boolean highlight = false;
+    private boolean check = false;
     
     /**
      * Construye una nueva casilla indicando su posición en el tablero. 
@@ -118,6 +121,16 @@ public class Square extends JButton {
     }
 
     /**
+     * Activa o desactiva el destello que indica que el rey está en jaque.
+     *
+     * @param check {@code true} para mostrar el destello, {@code false} para quitarlo.
+     */
+    public void setCheck(boolean check) {
+        this.check = check;
+        repaint();
+    }
+
+    /**
      * Indica si la casilla se encuentra actualmente resaltada (como movimiento válido).
      * 
      * @return {@code true} si está resaltada, {@code false} en caso contrario.
@@ -136,6 +149,21 @@ public class Square extends JButton {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         
+        if (check && piece instanceof King && getWidth() > 0 && getHeight() > 0) {
+            Graphics2D g2D = (Graphics2D) g.create();
+            float radius = Math.min(getWidth(), getHeight()) / 2.0f;
+            g2D.setPaint(new RadialGradientPaint(getWidth() / 2.0f, getHeight() / 2.0f, radius,
+                    new float[]{ 0.0f, 0.55f, 1.0f },
+                    new Color[]{ new Color(255, 220, 40, 180), new Color(255, 165, 0, 160),
+                        new Color(255, 140, 0, 0) }));
+            g2D.fillRect(0, 0, getWidth(), getHeight());
+            if (getIcon() != null) {
+                getIcon().paintIcon(this, g2D, (getWidth() - getIcon().getIconWidth()) / 2,
+                        (getHeight() - getIcon().getIconHeight()) / 2);
+            }
+            g2D.dispose();
+        }
+
         if (highlight) {
             Graphics2D g2D = (Graphics2D) g.create();
             g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
