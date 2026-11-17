@@ -3,6 +3,10 @@ package controller;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import javax.swing.JOptionPane;
+import java.awt.GraphicsEnvironment;
 
 import view.Board;
 import view.MovementsPanel;
@@ -27,12 +31,15 @@ public class GameController implements ActionListener {
     private final Board board;
     private final MovementsPanel movementsPanel;
     
-    private static boolean whitesMove = true;
+    private boolean whitesMove = true;
     
-    private static int generalMovements;
-    private static int movementsWithoutCaptures;
+    private int generalMovements;
+    private int movementsWithoutCaptures;
     
-    private static Square beforeSquare;
+    private Square beforeSquare;
+    private boolean gameOver;
+    private String result = "";
+    private final Map<String, Integer> positions = new HashMap<>();
     
     public GameController(Board board) {
         this(board, null);
@@ -53,6 +60,8 @@ public class GameController implements ActionListener {
      */
     @Override
     public void actionPerformed(ActionEvent e) {
+        if (gameOver) return;
+        if (positions.isEmpty()) positions.put(positionKey(), 1);
         Square currentSquare = (Square) e.getSource();
         
         if (beforeSquare != null && currentSquare.isHighlight()) {
@@ -81,25 +90,47 @@ public class GameController implements ActionListener {
      */
     private void movePiece(Square currentSquare) {
         Piece pieceMoved = beforeSquare.getPiece();
-        
-        if (pieceMoved instanceof Pawn) {
-            if (beforeSquare.getCol() != currentSquare.getCol() && currentSquare.getPiece() == null) {
-                board.getSquares()[beforeSquare.getRow()][currentSquare.getCol()].setPiece(null);
-            }
+        boolean capture = currentSquare.getPiece() != null;
+        boolean passant = pieceMoved instanceof Pawn && beforeSquare.getCol() != currentSquare.getCol()
+                && !capture;
+        boolean castle = pieceMoved instanceof King && Math.abs(beforeSquare.getCol() - currentSquare.getCol()) == 2;
+        String notation = (pieceMoved instanceof Pawn ? "" : symbol(pieceMoved))
+                + coordinate(beforeSquare) + (capture || passant ? "x" : "-") + coordinate(currentSquare);
+        if (passant) {
+            board.getSquares()[beforeSquare.getRow()][currentSquare.getCol()].setPiece(null);
         }
-        
-        if (movementsPanel != null) {
-            movementsPanel.addMovement(beforeSquare, currentSquare);
+        if (castle) {
+            int rookCol = currentSquare.getCol() == 6 ? 7 : 0;
+            int targetCol = currentSquare.getCol() == 6 ? 5 : 3;
+            Square rookSquare = board.getSquares()[beforeSquare.getRow()][rookCol];
+            rookSquare.getPiece().markMoved();
+            board.getSquares()[beforeSquare.getRow()][targetCol].setPiece(rookSquare.getPiece());
+            rookSquare.setPiece(null);
+            notation = rookCol == 7 ? "O-O" : "O-O-O";
         }
-        
         board.setEnPassantSquare(pieceMoved instanceof Pawn
                 && Math.abs(beforeSquare.getRow() - currentSquare.getRow()) == 2 ? currentSquare : null);
-        currentSquare.setPiece(beforeSquare.getPiece());
+        currentSquare.setPiece(pieceMoved);
         beforeSquare.setPiece(null);
+        pieceMoved.markMoved();
+        if (pieceMoved instanceof Pawn && (currentSquare.getRow() == 0 || currentSquare.getRow() == 7)) {
+            Piece promoted = choosePromotion(pieceMoved.isWhite());
+            promoted.markMoved();
+            currentSquare.setPiece(promoted);
+            notation += "=" + symbol(promoted);
+        }
+        movementsWithoutCaptures = pieceMoved instanceof Pawn || capture || passant ? 0 : movementsWithoutCaptures + 1;
         clearHighlights();
         generalMovements++;
         whitesMove = !whitesMove;
         validateKingsCheck();
+        positions.merge(positionKey(), 1, Integer::sum);
+        updateGameState();
+        if (movementsPanel != null) {
+            movementsPanel.addMovement(notation + (result.startsWith("Jaque mate") ? "#" : inCheck(whitesMove) ? "+" : ""));
+        }
+        if (gameOver && !GraphicsEnvironment.isHeadless()) JOptionPane.showMessageDialog(board, result);
+
     }
     
     /**
@@ -177,8 +208,7 @@ public class GameController implements ActionListener {
         boolean rightTurn = (whitesMove && square.getPiece().isWhite()) || (!whitesMove && !square.getPiece().isWhite());
         
         if (rightTurn) {
-            List<Integer[]> pieceMovements = square.getPiece()
-                .validMovements(square.getRow(), square.getCol(), this.board);
+            List<Integer[]> pieceMovements = legalMovements(square);
         
             for (Integer[] move : pieceMovements) {
                 int row = move[0];
@@ -226,6 +256,214 @@ public class GameController implements ActionListener {
             target.setPiece(captured);
             if (passant != null) passant.setPiece(passantPiece);
         }
+    }
+
+    /** Obtiene los movimientos seguros y añade los enroques permitidos. */
+    private List<Integer[]> legalMovements(Square square) {
+        List<Integer[]> moves = square.getPiece().validMovements(square.getRow(), square.getCol(), board);
+        moves.removeIf(move -> !isSafeMovement(square, board.getSquares()[move[0]][move[1]]));
+        if (square.getPiece() instanceof King) {
+            for (int col : new int[]{ 0, 7 }) {
+                if (canCastle(square, col)) moves.add(new Integer[]{ square.getRow(), col == 7 ? 6 : 2 });
+            }
+        }
+        return moves;
+    }
+
+    /** Valida el historial, las casillas libres y los ataques durante el enroque. */
+    private boolean canCastle(Square king, int rookCol) {
+        if (king.getPiece().hasMoved() || king.getCol() != 4
+                || king.getRow() != (king.getPiece().isWhite() ? 7 : 0) || isKingInCheck(king)) return false;
+        Piece rook = board.getSquares()[king.getRow()][rookCol].getPiece();
+        if (!(rook instanceof Rook) || rook.hasMoved() || rook.isWhite() != king.getPiece().isWhite()) return false;
+        int step = rookCol == 7 ? 1 : -1;
+        for (int col = 4 + step; col != rookCol; col += step) {
+            if (board.getSquares()[king.getRow()][col].getPiece() != null) return false;
+        }
+        return isSafeMovement(king, board.getSquares()[king.getRow()][4 + step])
+                && isSafeMovement(king, board.getSquares()[king.getRow()][4 + 2 * step]);
+    }
+
+    /** Permite elegir cualquiera de las cuatro piezas de promoción. */
+    private Piece choosePromotion(boolean white) {
+        String[] options = { "Reina", "Torre", "Alfil", "Caballo" };
+        int choice = GraphicsEnvironment.isHeadless() ? 0 : JOptionPane.showOptionDialog(board,
+                "Elige la pieza para coronar el peón", "Promoción", JOptionPane.DEFAULT_OPTION,
+                JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+        return switch (choice) {
+            case 1 -> new Rook(white);
+            case 2 -> new Bishop(white);
+            case 3 -> new Knight(white);
+            default -> new Queen(white);
+        };
+    }
+
+    /** Comprueba el jaque del bando indicado. */
+    private boolean inCheck(boolean white) {
+        for (Square[] row : board.getSquares()) {
+            for (Square square : row) {
+                if (square.getPiece() instanceof King && square.getPiece().isWhite() == white) return isKingInCheck(square);
+            }
+        }
+        return false;
+    }
+
+    /** Da prioridad al mate antes de aplicar las tablas automáticas. */
+    private void updateGameState() {
+        boolean canMove = false;
+        for (Square[] row : board.getSquares()) {
+            for (Square square : row) {
+                if (square.getPiece() != null && square.getPiece().isWhite() == whitesMove
+                        && !legalMovements(square).isEmpty()) canMove = true;
+            }
+        }
+        if (!canMove) finish(inCheck(whitesMove) ? "Jaque mate. Ganan las " + (whitesMove ? "negras." : "blancas.") : "Tablas por ahogado.");
+        else if (insufficientMaterial()) finish("Tablas por material insuficiente.");
+        else if (positions.getOrDefault(positionKey(), 0) >= 5) finish("Tablas por quíntuple repetición.");
+        else if (movementsWithoutCaptures >= 150) finish("Tablas por 75 movimientos sin capturas ni movimientos de peón.");
+    }
+
+    /** Detecta finales sin posibilidad de mate con reyes, un menor o alfiles del mismo color. */
+    private boolean insufficientMaterial() {
+        int minors = 0;
+        int knights = 0;
+        int bishopColor = -1;
+        boolean sameColor = true;
+        for (Square[] row : board.getSquares()) {
+            for (Square square : row) {
+                Piece piece = square.getPiece();
+                if (piece == null || piece instanceof King) continue;
+                if (!(piece instanceof Bishop) && !(piece instanceof Knight)) return false;
+                minors++;
+                if (piece instanceof Knight) knights++;
+                else {
+                    int color = (square.getRow() + square.getCol()) % 2;
+                    if (bishopColor != -1 && bishopColor != color) sameColor = false;
+                    bishopColor = color;
+                }
+            }
+        }
+        return minors <= 1 || knights == 0 && sameColor;
+    }
+
+    /** Reclama tablas cuando la posición actual cumple las condiciones reglamentarias. */
+    public void claimDraw() {
+        if (gameOver) return;
+        if (positions.getOrDefault(positionKey(), 0) >= 3 || movementsWithoutCaptures >= 100) {
+            finish("Tablas reclamadas por repetición o por 50 movimientos.");
+        }
+        if (!gameOver) {
+            java.util.List<String> claims = new java.util.ArrayList<>();
+            for (Square[] row : board.getSquares()) {
+                for (Square origin : row) {
+                    Piece piece = origin.getPiece();
+                    if (piece == null || piece.isWhite() != whitesMove || piece instanceof Pawn) continue;
+                    for (Integer[] move : legalMovements(origin)) {
+                        Square target = board.getSquares()[move[0]][move[1]];
+                        if (target.getPiece() != null) continue;
+                        boolean fiftyMoves = movementsWithoutCaptures >= 99;
+                        boolean repetition = false;
+                        if (!(piece instanceof King || piece instanceof Rook) || piece.hasMoved()) {
+                            Square passant = board.getEnPassantSquare();
+                            origin.setPiece(null);
+                            target.setPiece(piece);
+                            board.setEnPassantSquare(null);
+                            whitesMove = !whitesMove;
+                            try {
+                                repetition = positions.getOrDefault(positionKey(), 0) >= 2;
+                            } finally {
+                                whitesMove = !whitesMove;
+                                board.setEnPassantSquare(passant);
+                                target.setPiece(null);
+                                origin.setPiece(piece);
+                            }
+                        }
+                        if (fiftyMoves || repetition) claims.add(coordinate(origin) + "-" + coordinate(target));
+                    }
+                }
+            }
+            if (!claims.isEmpty() && !GraphicsEnvironment.isHeadless()) {
+                Object intended = JOptionPane.showInputDialog(board,
+                        "Selecciona la jugada que declaras para reclamar tablas:", "Reclamar tablas",
+                        JOptionPane.QUESTION_MESSAGE, null, claims.toArray(), claims.get(0));
+                if (intended != null) finish("Tablas reclamadas con la jugada declarada " + intended + ".");
+            }
+        }
+        if (!GraphicsEnvironment.isHeadless()) JOptionPane.showMessageDialog(board,
+                gameOver ? result : "No se ha realizado una reclamación válida de tablas.");
+    }
+
+    /** Permite que el contrario acepte una propuesta de tablas. */
+    public void offerDraw() {
+        if (gameOver || GraphicsEnvironment.isHeadless()) return;
+        int answer = JOptionPane.showConfirmDialog(board,
+                "Las " + (whitesMove ? "blancas" : "negras") + " proponen tablas. ¿El contrario acepta?",
+                "Propuesta de tablas", JOptionPane.YES_NO_OPTION);
+        if (answer == JOptionPane.YES_OPTION) finish("Tablas por acuerdo.");
+    }
+
+    /** Termina la partida por abandono del jugador al turno. */
+    public void resign() {
+        if (!gameOver) finish("Abandono. Ganan las " + (whitesMove ? "negras." : "blancas."));
+    }
+
+    /** Guarda el resultado y bloquea las jugadas posteriores. */
+    private void finish(String message) {
+        gameOver = true;
+        result = message;
+        clearHighlights();
+        beforeSquare = null;
+        if (movementsPanel != null) movementsPanel.setGameStatus(message);
+    }
+
+    /** @return El resultado de la partida, o una cadena vacía si continúa. */
+    public String getResult() {
+        return result;
+    }
+
+    private String coordinate(Square square) {
+        return "" + (char) ('a' + square.getCol()) + (8 - square.getRow());
+    }
+
+    private String symbol(Piece piece) {
+        if (piece instanceof King) return "K";
+        if (piece instanceof Queen) return "Q";
+        if (piece instanceof Rook) return "R";
+        if (piece instanceof Bishop) return "B";
+        if (piece instanceof Knight) return "N";
+        return "P";
+    }
+
+    /** Identifica posición, turno, derechos de enroque y captura al paso legal. */
+    private String positionKey() {
+        StringBuilder key = new StringBuilder(whitesMove ? "w" : "b");
+        for (Square[] row : board.getSquares()) {
+            for (Square square : row) {
+                Piece piece = square.getPiece();
+                key.append(piece == null ? "." : piece.isWhite() ? symbol(piece) : symbol(piece).toLowerCase());
+            }
+        }
+        for (int row : new int[]{ 0, 7 }) {
+            Piece king = board.getSquares()[row][4].getPiece();
+            for (int col : new int[]{ 0, 7 }) {
+                Piece rook = board.getSquares()[row][col].getPiece();
+                key.append(king instanceof King && !king.hasMoved() && king.isWhite() == (row == 7)
+                        && rook instanceof Rook && !rook.hasMoved() && rook.isWhite() == king.isWhite() ? "1" : "0");
+            }
+        }
+        Square passant = board.getEnPassantSquare();
+        if (passant != null) {
+            for (int col : new int[]{ passant.getCol() - 1, passant.getCol() + 1 }) {
+                if (col < 0 || col > 7) continue;
+                Square origin = board.getSquares()[passant.getRow()][col];
+                if (origin.getPiece() instanceof Pawn && origin.getPiece().isWhite() == whitesMove) {
+                    for (Integer[] move : legalMovements(origin)) {
+                        if (move[1] == passant.getCol()) key.append("ep").append(coordinate(passant));
+                    }
+                }
+            }
+        }
+        return key.toString();
     }
 
     /**

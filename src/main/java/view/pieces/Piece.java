@@ -18,6 +18,7 @@ import view.Board;
 public abstract class Piece {
     
     private ImageIcon icon;
+    private boolean moved;
     private final PieceType pieceType;
     
     private final boolean white;
@@ -65,6 +66,25 @@ public abstract class Piece {
      */
     public ImageIcon getIcon() {
         return icon;
+    }
+
+    /** @return Indica si la pieza ya realizó algún movimiento. */
+    public boolean hasMoved() {
+        return moved;
+    }
+
+    /** Marca la pieza como movida para conservar los derechos de enroque. */
+    public void markMoved() {
+        moved = true;
+    }
+
+    /**
+     * Obtiene el valor material de la pieza, independientemente de su color.
+     *
+     * @return El valor en puntos; el rey devuelve 0 porque no se cuenta como material.
+     */
+    public int getValue() {
+        return pieceType.getValue();
     }
 
     /**

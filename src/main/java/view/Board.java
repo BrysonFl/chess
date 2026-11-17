@@ -64,6 +64,7 @@ public class Board extends JPanel {
         squares = new Square[8][8];
         
         GameController controller = new GameController(this, movementsPanel);
+        if (movementsPanel != null) movementsPanel.configureGameActions(controller);
         
         for (int row = 0; row < squares.length; row++) {
             for (int col = 0; col < squares[row].length; col++) {
@@ -94,15 +95,13 @@ public class Board extends JPanel {
             Square rowSquare = squares[index][0];
             String number = String.valueOf(8 - index);
             int numberX = (getInsets().left - metrics.stringWidth(number)) / 2;
-            int numberY = rowSquare.getY() + (rowSquare.getHeight() - metrics.getHeight()) / 2
-                    + metrics.getAscent();
+            int numberY = rowSquare.getY() + (rowSquare.getHeight() - metrics.getHeight()) / 2 + metrics.getAscent();
             g2D.drawString(number, numberX, numberY);
 
             Square colSquare = squares[7][index];
             String letter = String.valueOf((char) ('a' + index));
             int letterX = colSquare.getX() + (colSquare.getWidth() - metrics.stringWidth(letter)) / 2;
-            int letterY = getHeight() - getInsets().bottom
-                    + (getInsets().bottom - metrics.getHeight()) / 2 + metrics.getAscent();
+            int letterY = getHeight() - getInsets().bottom + (getInsets().bottom - metrics.getHeight()) / 2 + metrics.getAscent();
             g2D.drawString(letter, letterX, letterY);
         }
         g2D.dispose();

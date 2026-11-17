@@ -32,6 +32,7 @@ import view.pieces.Rook;
  */
 public class MovementsPanel extends JPanel {
 
+    private final JLabel gameStatus = new JLabel("Partida en curso");
     private final DefaultTableModel tableModel;
     private final JTable movementsTable;
 
@@ -53,6 +54,7 @@ public class MovementsPanel extends JPanel {
         add(titleLabel, BorderLayout.NORTH);
 
         String[] columns = {"N.º", "Blancas", "Negras"};
+
         tableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -86,6 +88,32 @@ public class MovementsPanel extends JPanel {
         g2D.setColor(new Color(0xB58863));
         g2D.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 28, 28);
         g2D.dispose();
+    }
+
+    /** Conecta las acciones de finalización al controlador de esta partida. */
+    public void configureGameActions(controller.GameController controller) {
+        JPanel actions = new JPanel(new java.awt.GridLayout(0, 1, 4, 4));
+        actions.setOpaque(false);
+        gameStatus.setForeground(new Color(0xF0D9B5));
+        javax.swing.JButton claim = new javax.swing.JButton("Reclamar tablas");
+        claim.addActionListener(event -> controller.claimDraw());
+        javax.swing.JButton resign = new javax.swing.JButton("Abandonar");
+        resign.addActionListener(event -> {
+            if (javax.swing.JOptionPane.showConfirmDialog(this, "¿Quieres abandonar la partida?",
+                    "Abandonar", javax.swing.JOptionPane.YES_NO_OPTION) == javax.swing.JOptionPane.YES_OPTION) controller.resign();
+        });
+        actions.add(gameStatus);
+        actions.add(claim);
+        javax.swing.JButton offer = new javax.swing.JButton("Proponer tablas");
+        offer.addActionListener(event -> controller.offerDraw());
+        actions.add(offer);
+        actions.add(resign);
+        add(actions, BorderLayout.SOUTH);
+    }
+
+    /** Muestra el resultado de la partida en el panel lateral. */
+    public void setGameStatus(String status) {
+        gameStatus.setText("<html>" + status + "</html>");
     }
 
     /**
@@ -157,11 +185,11 @@ public class MovementsPanel extends JPanel {
         Piece movedPiece = fromSquare.getPiece();
         boolean isCapture = toSquare.getPiece() != null;
         String piecePrefix = getPieceSymbol(movedPiece);
-        String fromCoord = toAlgebraic(fromSquare.getRow(), fromSquare.getCol());
-        String toCoord = toAlgebraic(toSquare.getRow(), toSquare.getCol());
+        String fromCoordinate = toAlgebraic(fromSquare.getRow(), fromSquare.getCol());
+        String toCoordinate = toAlgebraic(toSquare.getRow(), toSquare.getCol());
         String separator = isCapture ? "x" : "-";
 
-        String notation = piecePrefix + fromCoord + separator + toCoord;
+        String notation = piecePrefix + fromCoordinate + separator + toCoordinate;
         addMovement(notation);
     }
 

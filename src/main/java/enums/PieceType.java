@@ -8,22 +8,25 @@ package enums;
  * @author brysonfl
  */
 public enum PieceType {
-    PAWN("P"),
-    ROOK("R"),
-    KNIGHT("N"),
-    BISHOP("B"),
-    QUEEN("Q"),
-    KING("K");
+    PAWN("P", 1),
+    ROOK("R", 5),
+    KNIGHT("N", 3),
+    BISHOP("B", 3),
+    QUEEN("Q", 9),
+    KING("K", 0);
     
     private final String type;
+    private final int value;
     
     /**
      * Construye un tipo de pieza con el identificador en cadena de texto correspondiente.
      * 
      * @param type La letra representativa del tipo de pieza.
+     * @param value El valor material de la pieza; 0 para el rey, que no se captura.
      */
-    PieceType(String type) {
+    PieceType(String type, int value) {
         this.type = type;
+        this.value = value;
     }
     
     /**
@@ -33,5 +36,13 @@ public enum PieceType {
      */
     public String getType() {
         return this.type;
+    }
+    /**
+     * Obtiene el valor material del tipo de pieza.
+     *
+     * @return El valor en puntos; 0 indica que el rey no participa en el conteo material.
+     */
+    public int getValue() {
+        return value;
     }
 }
