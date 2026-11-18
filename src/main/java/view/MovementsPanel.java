@@ -1,7 +1,6 @@
 package view;
 
 import controller.GameController;
-import view.buttons.ButtonBase;
 import view.buttons.ClaimDrawButton;
 import view.buttons.DrawButton;
 import view.buttons.ResignButton;
@@ -82,7 +81,6 @@ public class MovementsPanel extends JPanel {
         g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2D.setColor(getBackground());
         g2D.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 28, 28);
-        g2D.setColor(new Color(0xB58863));
         g2D.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 28, 28);
         g2D.dispose();
     }
@@ -107,7 +105,7 @@ public class MovementsPanel extends JPanel {
 
     /** Muestra el resultado de la partida en el panel lateral. */
     public void setGameStatus(String status) {
-        gameStatus.setText("<html>" + status + "</html>");
+        gameStatus.setText(status);
     }
 
     /**
@@ -115,32 +113,15 @@ public class MovementsPanel extends JPanel {
      * colores, fuentes, altura de filas, anchos de columnas y alineación.
      */
     private void configureTableStyle() {
-        movementsTable.setBackground(new Color(0x363330));
-        movementsTable.setForeground(new Color(0xF0D9B5));
         movementsTable.setFont(new Font("SansSerif", Font.PLAIN, 14));
         movementsTable.setRowHeight(28);
-        movementsTable.setShowGrid(false);
         movementsTable.setFocusable(false);
         movementsTable.setRowSelectionAllowed(false);
 
         JTableHeader header = movementsTable.getTableHeader();
-        header.setBackground(new Color(0xB58863));
-        header.setForeground(Color.WHITE);
         header.setFont(new Font("SansSerif", Font.BOLD, 14));
         header.setReorderingAllowed(false);
         header.setResizingAllowed(false);
-
-        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
-
-        for (int i = 0; i < movementsTable.getColumnCount(); i++) {
-            movementsTable.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
-        }
-
-        movementsTable.getColumnModel().getColumn(0).setPreferredWidth(50);
-        movementsTable.getColumnModel().getColumn(0).setMaxWidth(60);
-        movementsTable.getColumnModel().getColumn(1).setPreferredWidth(125);
-        movementsTable.getColumnModel().getColumn(2).setPreferredWidth(125);
     }
 
     /**
@@ -155,10 +136,11 @@ public class MovementsPanel extends JPanel {
         int rowCount = tableModel.getRowCount();
 
         if (rowCount == 0 || tableModel.getValueAt(rowCount - 1, 2) != null) {
-            int turnNumber = rowCount + 1;
-            tableModel.addRow(new Object[]{turnNumber + ".", movement, null});
+            rowCount++;
+            tableModel.addRow(new Object[]{rowCount + ".", movement, null});
         } else {
-            tableModel.setValueAt(movement, rowCount - 1, 2);
+            rowCount--;
+            tableModel.setValueAt(movement, rowCount, 2);
         }
 
         scrollToBottom();
