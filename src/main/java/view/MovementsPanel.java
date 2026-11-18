@@ -171,76 +171,12 @@ public class MovementsPanel extends JPanel {
     }
 
     /**
-     * Registra un movimiento a partir de la casilla de origen y la casilla de destino,
-     * generando automáticamente la notación algebraica correspondiente.
-     *
-     * @param fromSquare Casilla de origen antes de efectuar el movimiento.
-     * @param toSquare   Casilla de destino a la que se desplaza la pieza.
-     */
-    public void addMovement(Square fromSquare, Square toSquare) {
-        if (fromSquare == null || toSquare == null) {
-            return;
-        }
-
-        Piece movedPiece = fromSquare.getPiece();
-        boolean isCapture = toSquare.getPiece() != null;
-        String piecePrefix = getPieceSymbol(movedPiece);
-        String fromCoordinate = toAlgebraic(fromSquare.getRow(), fromSquare.getCol());
-        String toCoordinate = toAlgebraic(toSquare.getRow(), toSquare.getCol());
-        String separator = isCapture ? "x" : "-";
-
-        String notation = piecePrefix + fromCoordinate + separator + toCoordinate;
-        addMovement(notation);
-    }
-
-    /**
-     * Limpia todo el historial de movimientos registrado en la tabla.
-     */
-    public void clearHistory() {
-        tableModel.setRowCount(0);
-    }
-
-    /**
-     * Convierte las coordenadas de fila y columna de la matriz del tablero
-     * a notación algebraica estándar de ajedrez (columnas 'a'-'h', filas '1'-'8').
-     *
-     * @param row Fila del tablero (0 a 7).
-     * @param col Columna del tablero (0 a 7).
-     * @return Coordenada en notación algebraica (ej. "e4").
-     */
-    private String toAlgebraic(int row, int col) {
-        char file = (char) ('a' + col);
-        int rank = 8 - row;
-        return "" + file + rank;
-    }
-
-    /**
-     * Obtiene la letra representativa de la pieza para la notación del movimiento.
-     *
-     * @param piece La pieza que realiza el movimiento.
-     * @return El símbolo de la pieza ("K", "Q", "R", "B", "N") o cadena vacía para peones.
-     */
-    private String getPieceSymbol(Piece piece) {
-        if (piece instanceof King) {
-            return "K";
-        } else if (piece instanceof Queen) {
-            return "Q";
-        } else if (piece instanceof Rook) {
-            return "R";
-        } else if (piece instanceof Bishop) {
-            return "B";
-        } else if (piece instanceof Knight) {
-            return "N";
-        }
-        return "";
-    }
-
-    /**
      * Desplaza automáticamente la vista de la tabla hacia el último movimiento registrado.
      */
     private void scrollToBottom() {
         int lastRow = movementsTable.getRowCount() - 1;
-        if (lastRow >= 0) {
+
+         if (lastRow >= 0) {
             movementsTable.scrollRectToVisible(movementsTable.getCellRect(lastRow, 0, true));
         }
     }
