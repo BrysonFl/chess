@@ -1,5 +1,7 @@
 package view;
 
+import controller.GameController;
+
 import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.GridBagLayout;
@@ -41,10 +43,12 @@ public class WindowGame extends JFrame {
         Board board = new Board(movementsPanel);
 
         add(board);
+
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.gridx = 1;
         constraints.gridy = 0;
         constraints.insets = new Insets(0, 24, 0, 0);
+
         add(movementsPanel, constraints);
         setVisible(true);
     }

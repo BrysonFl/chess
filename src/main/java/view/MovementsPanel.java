@@ -2,15 +2,11 @@ package view;
 
 import controller.GameController;
 import view.buttons.ButtonBase;
+import view.buttons.ClaimDrawButton;
+import view.buttons.DrawButton;
 import view.buttons.ResignButton;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
+import java.awt.*;
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
@@ -29,7 +25,9 @@ public class MovementsPanel extends JPanel {
     private final DefaultTableModel tableModel;
     private final JTable movementsTable;
 
-    private final ButtonBase resignButton;
+    private final ResignButton resignButton;
+    private final DrawButton drawButton;
+    private final ClaimDrawButton claimDrawButton;
 
     /**
      * Construye e inicializa el panel de historial de movimientos,
@@ -37,6 +35,8 @@ public class MovementsPanel extends JPanel {
      */
     public MovementsPanel() {
         resignButton = new ResignButton("Abandonar");
+        drawButton = new DrawButton("Proponer Tablas");
+        claimDrawButton = new ClaimDrawButton("Reclamar tablas");
 
         setPreferredSize(new Dimension(360, 1000));
         setLayout(new BorderLayout());
@@ -89,19 +89,18 @@ public class MovementsPanel extends JPanel {
 
     /** Conecta las acciones de finalización al controlador de esta partida. */
     public void configureGameActions(GameController controller) {
-        JPanel actions = new JPanel(new java.awt.GridLayout(0, 1, 4, 4));
+        JPanel actions = new JPanel(new GridLayout(0, 1, 4, 4));
         actions.setOpaque(false);
         gameStatus.setForeground(new Color(0xF0D9B5));
-        javax.swing.JButton claim = new javax.swing.JButton("Reclamar tablas");
-        claim.addActionListener(event -> controller.claimDraw());
 
-        resignAction(controller);
+        resignButton.configureAction(controller);
+        drawButton.configureAction(controller);
+        claimDrawButton.configureAction(controller);
 
         actions.add(gameStatus);
-        actions.add(claim);
-        javax.swing.JButton offer = new javax.swing.JButton("Proponer tablas");
-        offer.addActionListener(event -> controller.offerDraw());
-        actions.add(offer);
+
+        actions.add(claimDrawButton);
+        actions.add(drawButton);
         actions.add(resignButton);
         add(actions, BorderLayout.SOUTH);
     }
@@ -163,15 +162,6 @@ public class MovementsPanel extends JPanel {
         }
 
         scrollToBottom();
-    }
-
-    private void resignAction(GameController controller) {
-        resignButton.addActionListener(event -> {
-            int action = JOptionPane.showConfirmDialog(this, "¿Quieres abandonar la partida?",
-                    "Abandonar", JOptionPane.YES_NO_OPTION);
-
-            if (action == JOptionPane.YES_OPTION) controller.resign();
-        });
     }
 
     /**

@@ -30,13 +30,6 @@ public class Board extends JPanel {
     private Square[][] squares;
     private Square enPassantSquare;
     private final MovementsPanel movementsPanel;
-    
-    /**
-     * Construye un nuevo tablero de ajedrez sin panel de movimientos asociado.
-     */
-    public Board() {
-        this(null);
-    }
 
     /**
      * Construye un nuevo tablero de ajedrez configurando su tamaño preferido, 
@@ -62,8 +55,9 @@ public class Board extends JPanel {
     private void loadSquaresBoard() {
         setLayout(new GridLayout(8, 8));
         squares = new Square[8][8];
-        
+
         GameController controller = new GameController(this, movementsPanel);
+
         if (movementsPanel != null) movementsPanel.configureGameActions(controller);
         
         for (int row = 0; row < squares.length; row++) {

@@ -40,10 +40,6 @@ public class GameController implements ActionListener {
     private boolean gameOver;
     private String result = "";
     private final Map<String, Integer> positions = new HashMap<>();
-    
-    public GameController(Board board) {
-        this(board, null);
-    }
 
     public GameController(Board board, MovementsPanel movementsPanel) {
         this.board = board;
@@ -90,15 +86,21 @@ public class GameController implements ActionListener {
      */
     private void movePiece(Square currentSquare) {
         Piece pieceMoved = beforeSquare.getPiece();
+
         boolean capture = currentSquare.getPiece() != null;
+
         boolean passant = pieceMoved instanceof Pawn && beforeSquare.getCol() != currentSquare.getCol()
                 && !capture;
+
         boolean castle = pieceMoved instanceof King && Math.abs(beforeSquare.getCol() - currentSquare.getCol()) == 2;
+
         String notation = (pieceMoved instanceof Pawn ? "" : symbol(pieceMoved))
                 + coordinate(beforeSquare) + (capture || passant ? "x" : "-") + coordinate(currentSquare);
+
         if (passant) {
             board.getSquares()[beforeSquare.getRow()][currentSquare.getCol()].setPiece(null);
         }
+
         if (castle) {
             int rookCol = currentSquare.getCol() == 6 ? 7 : 0;
             int targetCol = currentSquare.getCol() == 6 ? 5 : 3;
@@ -108,17 +110,21 @@ public class GameController implements ActionListener {
             rookSquare.setPiece(null);
             notation = rookCol == 7 ? "O-O" : "O-O-O";
         }
+
         board.setEnPassantSquare(pieceMoved instanceof Pawn
                 && Math.abs(beforeSquare.getRow() - currentSquare.getRow()) == 2 ? currentSquare : null);
+
         currentSquare.setPiece(pieceMoved);
         beforeSquare.setPiece(null);
         pieceMoved.markMoved();
+
         if (pieceMoved instanceof Pawn && (currentSquare.getRow() == 0 || currentSquare.getRow() == 7)) {
             Piece promoted = choosePromotion(pieceMoved.isWhite());
             promoted.markMoved();
             currentSquare.setPiece(promoted);
             notation += "=" + symbol(promoted);
         }
+
         movementsWithoutCaptures = pieceMoved instanceof Pawn || capture || passant ? 0 : movementsWithoutCaptures + 1;
         clearHighlights();
         generalMovements++;
@@ -126,9 +132,11 @@ public class GameController implements ActionListener {
         validateKingsCheck();
         positions.merge(positionKey(), 1, Integer::sum);
         updateGameState();
+
         if (movementsPanel != null) {
             movementsPanel.addMovement(notation + (result.startsWith("Jaque mate") ? "#" : inCheck(whitesMove) ? "+" : ""));
         }
+
         if (gameOver && !GraphicsEnvironment.isHeadless()) JOptionPane.showMessageDialog(board, result);
 
     }
@@ -437,21 +445,26 @@ public class GameController implements ActionListener {
     /** Identifica posición, turno, derechos de enroque y captura al paso legal. */
     private String positionKey() {
         StringBuilder key = new StringBuilder(whitesMove ? "w" : "b");
+
         for (Square[] row : board.getSquares()) {
             for (Square square : row) {
                 Piece piece = square.getPiece();
                 key.append(piece == null ? "." : piece.isWhite() ? symbol(piece) : symbol(piece).toLowerCase());
             }
         }
+
         for (int row : new int[]{ 0, 7 }) {
             Piece king = board.getSquares()[row][4].getPiece();
+
             for (int col : new int[]{ 0, 7 }) {
                 Piece rook = board.getSquares()[row][col].getPiece();
                 key.append(king instanceof King && !king.hasMoved() && king.isWhite() == (row == 7)
                         && rook instanceof Rook && !rook.hasMoved() && rook.isWhite() == king.isWhite() ? "1" : "0");
             }
         }
+
         Square passant = board.getEnPassantSquare();
+
         if (passant != null) {
             for (int col : new int[]{ passant.getCol() - 1, passant.getCol() + 1 }) {
                 if (col < 0 || col > 7) continue;
@@ -463,6 +476,7 @@ public class GameController implements ActionListener {
                 }
             }
         }
+
         return key.toString();
     }
 
