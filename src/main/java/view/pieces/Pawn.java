@@ -2,10 +2,14 @@ package view.pieces;
 
 import view.Board;
 import enums.PieceType;
+
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import utils.UtilValidations;
 import view.Square;
+
+import javax.swing.*;
 
 /**
  * Clase representativa de la pieza Peón. 
@@ -85,8 +89,27 @@ public class Pawn extends Piece {
         return movements;
     }
 
+    /**
+     ** Válida que el movimiento sea inPassant
+     **/
     public boolean validateIsPassant(Square beforeSquare, Square currentSquare, boolean capture) {
         return beforeSquare.getCol() != currentSquare.getCol() && !capture;
+    }
+
+    /** Permite elegir cualquiera de las cuatro piezas de promoción. */
+    public Piece choosePromotion(boolean white, Board board) {
+        String[] options = { "Reina", "Torre", "Alfil", "Caballo" };
+
+        int choice = GraphicsEnvironment.isHeadless() ? 0 : JOptionPane.showOptionDialog(board,
+                "Elige la pieza para coronar el peón", "Promoción", JOptionPane.DEFAULT_OPTION,
+                JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+
+        return switch (choice) {
+            case 1 -> new Rook(white);
+            case 2 -> new Bishop(white);
+            case 3 -> new Knight(white);
+            default -> new Queen(white);
+        };
     }
     
 }

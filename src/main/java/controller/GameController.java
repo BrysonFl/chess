@@ -83,7 +83,7 @@ public class GameController implements ActionListener {
      * especificada, gestionando reglas especiales del juego (como la captura al paso en los peones),
      * actualizando el estado del tablero, incrementando el contador de movimientos y cambiando el turno.
      * 
-     * @param currentSquare 
+     * @param currentSquare Es el cuadraro al que se le ha dado clic actualmente
      */
     private void movePiece(Square currentSquare) {
         String notation;
@@ -118,7 +118,7 @@ public class GameController implements ActionListener {
         pieceMoved.markMoved();
 
         if (pieceMoved instanceof Pawn && (currentSquare.getRow() == 0 || currentSquare.getRow() == 7)) {
-            Piece promoted = choosePromotion(pieceMoved.isWhite());
+            Piece promoted = ((Pawn) pieceMoved).choosePromotion(pieceMoved.isWhite(), board);
             promoted.markMoved();
             currentSquare.setPiece(promoted);
             notation += "=" + symbol(promoted);
@@ -298,22 +298,6 @@ public class GameController implements ActionListener {
 
         return isSafeMovement(king, board.getSquares()[king.getRow()][4 + step])
                 && isSafeMovement(king, board.getSquares()[king.getRow()][4 + 2 * step]);
-    }
-
-    /** Permite elegir cualquiera de las cuatro piezas de promoción. */
-    private Piece choosePromotion(boolean white) {
-        String[] options = { "Reina", "Torre", "Alfil", "Caballo" };
-
-        int choice = GraphicsEnvironment.isHeadless() ? 0 : JOptionPane.showOptionDialog(board,
-                "Elige la pieza para coronar el peón", "Promoción", JOptionPane.DEFAULT_OPTION,
-                JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
-
-        return switch (choice) {
-            case 1 -> new Rook(white);
-            case 2 -> new Bishop(white);
-            case 3 -> new Knight(white);
-            default -> new Queen(white);
-        };
     }
 
     /** Comprueba el jaque del bando indicado. */
