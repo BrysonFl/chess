@@ -14,6 +14,13 @@ import view.Board;
  * @author brysonfl
  */
 public class Knight extends Piece {
+
+    private static final int[][] OFFSETS = {
+        {-2, 1}, {-2, -1},
+        {2, 1}, {2, -1},
+        {-1, 2}, {-1, -2},
+        {1, 2}, {1, -2}
+    };
     
     /**
      * Construye un nuevo caballo con el color especificado.
@@ -25,10 +32,11 @@ public class Knight extends Piece {
     }
 
     /**
-     * Calcula y retorna una lista con todos los movimientos válidos y legales disponibles 
+     * Calcula y retorna una lista con los destinos permitidos por las reglas de movimiento 
      * para el caballo desde su posición actual en el tablero. El caballo se mueve en "L" 
      * (dos casillas en una dirección y una perpendicular, o viceversa) y tiene la capacidad 
      * de saltar por encima de otras piezas.
+     * La comprobación de que el movimiento no deje al rey en jaque corresponde al controlador.
      * 
      * @param row   La fila actual en la que se encuentra el caballo.
      * @param col   La columna actual en la que se encuentra el caballo.
@@ -38,40 +46,23 @@ public class Knight extends Piece {
      */
     @Override
     public List<Integer[]> validMovements(int row, int col, Board board) {
-        List<Integer[]> movements = new ArrayList<>();
-        
-        if (UtilValidations.validateBoard(row - 2, col + 1) && (board.getSquares()[row - 2][col + 1].getPiece() == null || canCapture(board.getSquares()[row - 2][col + 1].getPiece()))) {
-            movements.add(new Integer[]{ row - 2, col + 1 });
+        List<Integer[]> movements = new ArrayList<>(8);
+
+        for (int[] offset : OFFSETS) {
+            int targetRow = row + offset[0];
+            int targetCol = col + offset[1];
+
+            if (!UtilValidations.validateBoard(targetRow, targetCol)) {
+                continue;
+            }
+
+            Piece targetPiece = board.getSquares()[targetRow][targetCol].getPiece();
+
+            if (targetPiece == null || canCapture(targetPiece)) {
+                movements.add(new Integer[]{targetRow, targetCol});
+            }
         }
-        
-        if (UtilValidations.validateBoard(row - 2, col - 1) && (board.getSquares()[row - 2][col - 1].getPiece() == null || canCapture(board.getSquares()[row - 2][col - 1].getPiece()))) {
-            movements.add(new Integer[]{ row - 2, col - 1 });
-        }
-        
-        if (UtilValidations.validateBoard(row + 2, col + 1) && (board.getSquares()[row + 2][col + 1].getPiece() == null || canCapture(board.getSquares()[row + 2][col + 1].getPiece()))) {
-            movements.add(new Integer[]{ row + 2, col + 1 });
-        }
-        
-        if (UtilValidations.validateBoard(row + 2, col - 1) && (board.getSquares()[row + 2][col - 1].getPiece() == null || canCapture(board.getSquares()[row + 2][col - 1].getPiece()))) {
-            movements.add(new Integer[]{ row + 2, col - 1 });
-        }
-        
-        if (UtilValidations.validateBoard(row - 1, col + 2) && (board.getSquares()[row - 1][col + 2].getPiece() == null || canCapture(board.getSquares()[row - 1][col + 2].getPiece()))) {
-            movements.add(new Integer[]{ row - 1, col + 2 });
-        }
-        
-        if (UtilValidations.validateBoard(row - 1, col - 2) && (board.getSquares()[row - 1][col - 2].getPiece() == null || canCapture(board.getSquares()[row - 1][col - 2].getPiece()))) {
-            movements.add(new Integer[]{ row - 1, col - 2 });
-        }
-        
-        if (UtilValidations.validateBoard(row + 1, col + 2) && (board.getSquares()[row + 1][col + 2].getPiece() == null || canCapture(board.getSquares()[row + 1][col + 2].getPiece()))) {
-            movements.add(new Integer[]{ row + 1, col + 2 });
-        }
-        
-        if (UtilValidations.validateBoard(row + 1, col - 2) && (board.getSquares()[row + 1][col - 2].getPiece() == null || canCapture(board.getSquares()[row + 1][col - 2].getPiece()))) {
-            movements.add(new Integer[]{ row + 1, col - 2 });
-        }
-        
+
         return movements;
     }
     

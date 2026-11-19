@@ -84,5 +84,9 @@ public class Pawn extends Piece {
         
         return movements;
     }
+
+    public boolean validateIsPassant(Square beforeSquare, Square currentSquare, boolean capture) {
+        return beforeSquare.getCol() != currentSquare.getCol() && !capture;
+    }
     
 }

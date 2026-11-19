@@ -2,12 +2,14 @@ package controller;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.JOptionPane;
 import java.awt.GraphicsEnvironment;
 
+import enums.PieceType;
 import view.Board;
 import view.MovementsPanel;
 import view.Square;
@@ -32,8 +34,7 @@ public class GameController implements ActionListener {
     private final MovementsPanel movementsPanel;
     
     private boolean whitesMove = true;
-    
-    private int generalMovements;
+
     private int movementsWithoutCaptures;
     
     private Square beforeSquare;
@@ -85,16 +86,14 @@ public class GameController implements ActionListener {
      * @param currentSquare 
      */
     private void movePiece(Square currentSquare) {
+        String notation;
         Piece pieceMoved = beforeSquare.getPiece();
 
         boolean capture = currentSquare.getPiece() != null;
-
-        boolean passant = pieceMoved instanceof Pawn && beforeSquare.getCol() != currentSquare.getCol()
-                && !capture;
-
+        boolean passant = pieceMoved instanceof Pawn && ((Pawn) pieceMoved).validateIsPassant(beforeSquare, currentSquare, capture);
         boolean castle = pieceMoved instanceof King && Math.abs(beforeSquare.getCol() - currentSquare.getCol()) == 2;
 
-        String notation = (pieceMoved instanceof Pawn ? "" : symbol(pieceMoved))
+        notation = (pieceMoved instanceof Pawn ? "" : symbol(pieceMoved))
                 + coordinate(beforeSquare) + (capture || passant ? "x" : "-") + coordinate(currentSquare);
 
         if (passant) {
@@ -127,7 +126,6 @@ public class GameController implements ActionListener {
 
         movementsWithoutCaptures = pieceMoved instanceof Pawn || capture || passant ? 0 : movementsWithoutCaptures + 1;
         clearHighlights();
-        generalMovements++;
         whitesMove = !whitesMove;
         validateKingsCheck();
         positions.merge(positionKey(), 1, Integer::sum);
@@ -243,13 +241,16 @@ public class GameController implements ActionListener {
         Piece captured = target.getPiece();
         Square passant = null;
         Piece passantPiece = null;
+
         if (moved instanceof Pawn && origin.getCol() != target.getCol() && captured == null) {
             passant = board.getSquares()[origin.getRow()][target.getCol()];
             passantPiece = passant.getPiece();
             passant.setPiece(null);
         }
+
         origin.setPiece(null);
         target.setPiece(moved);
+
         try {
             for (int row = 0; row < 8; row++) {
                 for (int col = 0; col < 8; col++) {
@@ -262,6 +263,7 @@ public class GameController implements ActionListener {
         } finally {
             origin.setPiece(moved);
             target.setPiece(captured);
+
             if (passant != null) passant.setPiece(passantPiece);
         }
     }
@@ -270,11 +272,13 @@ public class GameController implements ActionListener {
     private List<Integer[]> legalMovements(Square square) {
         List<Integer[]> moves = square.getPiece().validMovements(square.getRow(), square.getCol(), board);
         moves.removeIf(move -> !isSafeMovement(square, board.getSquares()[move[0]][move[1]]));
+
         if (square.getPiece() instanceof King) {
             for (int col : new int[]{ 0, 7 }) {
                 if (canCastle(square, col)) moves.add(new Integer[]{ square.getRow(), col == 7 ? 6 : 2 });
             }
         }
+
         return moves;
     }
 
@@ -282,12 +286,16 @@ public class GameController implements ActionListener {
     private boolean canCastle(Square king, int rookCol) {
         if (king.getPiece().hasMoved() || king.getCol() != 4
                 || king.getRow() != (king.getPiece().isWhite() ? 7 : 0) || isKingInCheck(king)) return false;
+
         Piece rook = board.getSquares()[king.getRow()][rookCol].getPiece();
+
         if (!(rook instanceof Rook) || rook.hasMoved() || rook.isWhite() != king.getPiece().isWhite()) return false;
         int step = rookCol == 7 ? 1 : -1;
+
         for (int col = 4 + step; col != rookCol; col += step) {
             if (board.getSquares()[king.getRow()][col].getPiece() != null) return false;
         }
+
         return isSafeMovement(king, board.getSquares()[king.getRow()][4 + step])
                 && isSafeMovement(king, board.getSquares()[king.getRow()][4 + 2 * step]);
     }
@@ -295,9 +303,11 @@ public class GameController implements ActionListener {
     /** Permite elegir cualquiera de las cuatro piezas de promoción. */
     private Piece choosePromotion(boolean white) {
         String[] options = { "Reina", "Torre", "Alfil", "Caballo" };
+
         int choice = GraphicsEnvironment.isHeadless() ? 0 : JOptionPane.showOptionDialog(board,
                 "Elige la pieza para coronar el peón", "Promoción", JOptionPane.DEFAULT_OPTION,
                 JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+
         return switch (choice) {
             case 1 -> new Rook(white);
             case 2 -> new Bishop(white);
@@ -313,18 +323,21 @@ public class GameController implements ActionListener {
                 if (square.getPiece() instanceof King && square.getPiece().isWhite() == white) return isKingInCheck(square);
             }
         }
+
         return false;
     }
 
     /** Da prioridad al mate antes de aplicar las tablas automáticas. */
     private void updateGameState() {
         boolean canMove = false;
+
         for (Square[] row : board.getSquares()) {
             for (Square square : row) {
                 if (square.getPiece() != null && square.getPiece().isWhite() == whitesMove
                         && !legalMovements(square).isEmpty()) canMove = true;
             }
         }
+
         if (!canMove) finish(inCheck(whitesMove) ? "Jaque mate. Ganan las " + (whitesMove ? "negras." : "blancas.") : "Tablas por ahogado.");
         else if (insufficientMaterial()) finish("Tablas por material insuficiente.");
         else if (positions.getOrDefault(positionKey(), 0) >= 5) finish("Tablas por quíntuple repetición.");
@@ -337,46 +350,61 @@ public class GameController implements ActionListener {
         int knights = 0;
         int bishopColor = -1;
         boolean sameColor = true;
+
         for (Square[] row : board.getSquares()) {
             for (Square square : row) {
                 Piece piece = square.getPiece();
                 if (piece == null || piece instanceof King) continue;
+
                 if (!(piece instanceof Bishop) && !(piece instanceof Knight)) return false;
+
                 minors++;
-                if (piece instanceof Knight) knights++;
-                else {
+
+                if (piece instanceof Knight) {
+                    knights++;
+                } else {
                     int color = (square.getRow() + square.getCol()) % 2;
+
                     if (bishopColor != -1 && bishopColor != color) sameColor = false;
+
                     bishopColor = color;
                 }
             }
         }
+
         return minors <= 1 || knights == 0 && sameColor;
     }
 
     /** Reclama tablas cuando la posición actual cumple las condiciones reglamentarias. */
     public void claimDraw() {
         if (gameOver) return;
+
         if (positions.getOrDefault(positionKey(), 0) >= 3 || movementsWithoutCaptures >= 100) {
             finish("Tablas reclamadas por repetición o por 50 movimientos.");
         }
+
         if (!gameOver) {
-            java.util.List<String> claims = new java.util.ArrayList<>();
+            List<String> claims = new ArrayList<>();
+
             for (Square[] row : board.getSquares()) {
                 for (Square origin : row) {
                     Piece piece = origin.getPiece();
                     if (piece == null || piece.isWhite() != whitesMove || piece instanceof Pawn) continue;
+
                     for (Integer[] move : legalMovements(origin)) {
                         Square target = board.getSquares()[move[0]][move[1]];
+
                         if (target.getPiece() != null) continue;
                         boolean fiftyMoves = movementsWithoutCaptures >= 99;
                         boolean repetition = false;
+
                         if (!(piece instanceof King || piece instanceof Rook) || piece.hasMoved()) {
                             Square passant = board.getEnPassantSquare();
                             origin.setPiece(null);
                             target.setPiece(piece);
                             board.setEnPassantSquare(null);
                             whitesMove = !whitesMove;
+
                             try {
                                 repetition = positions.getOrDefault(positionKey(), 0) >= 2;
                             } finally {
@@ -386,17 +414,21 @@ public class GameController implements ActionListener {
                                 origin.setPiece(piece);
                             }
                         }
+
                         if (fiftyMoves || repetition) claims.add(coordinate(origin) + "-" + coordinate(target));
                     }
                 }
             }
+
             if (!claims.isEmpty() && !GraphicsEnvironment.isHeadless()) {
                 Object intended = JOptionPane.showInputDialog(board,
                         "Selecciona la jugada que declaras para reclamar tablas:", "Reclamar tablas",
-                        JOptionPane.QUESTION_MESSAGE, null, claims.toArray(), claims.get(0));
+                        JOptionPane.QUESTION_MESSAGE, null, claims.toArray(), claims.getFirst());
+
                 if (intended != null) finish("Tablas reclamadas con la jugada declarada " + intended + ".");
             }
         }
+
         if (!GraphicsEnvironment.isHeadless()) JOptionPane.showMessageDialog(board,
                 gameOver ? result : "No se ha realizado una reclamación válida de tablas.");
     }
@@ -404,9 +436,11 @@ public class GameController implements ActionListener {
     /** Permite que el contrario acepte una propuesta de tablas. */
     public void offerDraw() {
         if (gameOver || GraphicsEnvironment.isHeadless()) return;
+
         int answer = JOptionPane.showConfirmDialog(board,
                 "Las " + (whitesMove ? "blancas" : "negras") + " proponen tablas. ¿El contrario acepta?",
                 "Propuesta de tablas", JOptionPane.YES_NO_OPTION);
+
         if (answer == JOptionPane.YES_OPTION) finish("Tablas por acuerdo.");
     }
 
@@ -434,12 +468,12 @@ public class GameController implements ActionListener {
     }
 
     private String symbol(Piece piece) {
-        if (piece instanceof King) return "K";
-        if (piece instanceof Queen) return "Q";
-        if (piece instanceof Rook) return "R";
-        if (piece instanceof Bishop) return "B";
-        if (piece instanceof Knight) return "N";
-        return "P";
+        if (piece instanceof King) return PieceType.KING.getType();
+        if (piece instanceof Queen) return PieceType.QUEEN.getType();
+        if (piece instanceof Rook) return PieceType.ROOK.getType();
+        if (piece instanceof Bishop) return PieceType.BISHOP.getType();
+        if (piece instanceof Knight) return PieceType.KNIGHT.getType();
+        return PieceType.PAWN.getType();
     }
 
     /** Identifica posición, turno, derechos de enroque y captura al paso legal. */
