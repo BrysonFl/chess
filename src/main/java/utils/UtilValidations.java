@@ -1,5 +1,9 @@
 package utils;
 
+import view.Square;
+import view.pieces.Pawn;
+import view.pieces.Piece;
+
 /**
  * Clase utilitaria que contiene métodos de validación globales utilizados 
  * en la lógica del juego de ajedrez.
@@ -18,6 +22,22 @@ public class UtilValidations {
      */
     public static boolean validateBoard(int row, int col) {
         return row >= 0 && row <= 7 && col >= 0 && col <= 7;
+    }
+
+    public static String generateCoordinate(Piece piece, Square currentSquare, boolean capture, boolean passant) {
+        if (piece instanceof Pawn) {
+            if (capture || passant) {
+                return "x" + coordinate(currentSquare);
+            }
+
+            return coordinate(currentSquare);
+        }
+
+        return piece.getPieceType() + coordinate(currentSquare);
+    }
+
+    public static String coordinate(Square square) {
+        return "" + (char) ('a' + square.getCol()) + (8 - square.getRow());
     }
     
 }

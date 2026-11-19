@@ -95,6 +95,10 @@ public abstract class Piece {
     public boolean isWhite() {
         return white;
     }
+
+    public String getPieceType() {
+        return pieceType.getType();
+    }
     
     /**
      * Método abstracto para calcular y retornar una lista con todos los movimientos 

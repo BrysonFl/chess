@@ -10,6 +10,7 @@ import javax.swing.JOptionPane;
 import java.awt.GraphicsEnvironment;
 
 import enums.PieceType;
+import utils.UtilValidations;
 import view.Board;
 import view.MovementsPanel;
 import view.Square;
@@ -93,8 +94,7 @@ public class GameController implements ActionListener {
         boolean passant = pieceMoved instanceof Pawn && ((Pawn) pieceMoved).validateIsPassant(beforeSquare, currentSquare, capture);
         boolean castle = pieceMoved instanceof King && Math.abs(beforeSquare.getCol() - currentSquare.getCol()) == 2;
 
-        notation = (pieceMoved instanceof Pawn ? "" : symbol(pieceMoved))
-                + coordinate(beforeSquare) + (capture || passant ? "x" : "-") + coordinate(currentSquare);
+        notation = UtilValidations.generateCoordinate(pieceMoved, currentSquare, capture, passant);
 
         if (passant) {
             board.getSquares()[beforeSquare.getRow()][currentSquare.getCol()].setPiece(null);
@@ -121,7 +121,7 @@ public class GameController implements ActionListener {
             Piece promoted = ((Pawn) pieceMoved).choosePromotion(pieceMoved.isWhite(), board);
             promoted.markMoved();
             currentSquare.setPiece(promoted);
-            notation += "=" + symbol(promoted);
+            notation += "=" + promoted.getPieceType();
         }
 
         movementsWithoutCaptures = pieceMoved instanceof Pawn || capture || passant ? 0 : movementsWithoutCaptures + 1;
@@ -399,7 +399,7 @@ public class GameController implements ActionListener {
                             }
                         }
 
-                        if (fiftyMoves || repetition) claims.add(coordinate(origin) + "-" + coordinate(target));
+                        if (fiftyMoves || repetition) claims.add(UtilValidations.coordinate(origin) + "-" + UtilValidations.coordinate(target));
                     }
                 }
             }
@@ -447,19 +447,6 @@ public class GameController implements ActionListener {
         return result;
     }
 
-    private String coordinate(Square square) {
-        return "" + (char) ('a' + square.getCol()) + (8 - square.getRow());
-    }
-
-    private String symbol(Piece piece) {
-        if (piece instanceof King) return PieceType.KING.getType();
-        if (piece instanceof Queen) return PieceType.QUEEN.getType();
-        if (piece instanceof Rook) return PieceType.ROOK.getType();
-        if (piece instanceof Bishop) return PieceType.BISHOP.getType();
-        if (piece instanceof Knight) return PieceType.KNIGHT.getType();
-        return PieceType.PAWN.getType();
-    }
-
     /** Identifica posición, turno, derechos de enroque y captura al paso legal. */
     private String positionKey() {
         StringBuilder key = new StringBuilder(whitesMove ? "w" : "b");
@@ -467,7 +454,7 @@ public class GameController implements ActionListener {
         for (Square[] row : board.getSquares()) {
             for (Square square : row) {
                 Piece piece = square.getPiece();
-                key.append(piece == null ? "." : piece.isWhite() ? symbol(piece) : symbol(piece).toLowerCase());
+                key.append(piece == null ? "." : piece.isWhite() ? piece.getPieceType() : piece.getPieceType().toLowerCase());
             }
         }
 
@@ -489,7 +476,7 @@ public class GameController implements ActionListener {
                 Square origin = board.getSquares()[passant.getRow()][col];
                 if (origin.getPiece() instanceof Pawn && origin.getPiece().isWhite() == whitesMove) {
                     for (Integer[] move : legalMovements(origin)) {
-                        if (move[1] == passant.getCol()) key.append("ep").append(coordinate(passant));
+                        if (move[1] == passant.getCol()) key.append("ep").append(UtilValidations.coordinate(passant));
                     }
                 }
             }

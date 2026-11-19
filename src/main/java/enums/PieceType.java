@@ -37,6 +37,7 @@ public enum PieceType {
     public String getType() {
         return this.type;
     }
+
     /**
      * Obtiene el valor material del tipo de pieza.
      *
