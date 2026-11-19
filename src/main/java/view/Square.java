@@ -6,7 +6,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.RadialGradientPaint;
-import view.pieces.King;
+import view.pieces.king.King;
 import javax.swing.JButton;
 
 import view.pieces.Piece;

@@ -12,7 +12,7 @@ import javax.swing.BorderFactory;
 import java.awt.GridLayout;
 import javax.swing.JPanel;
 import view.pieces.Bishop;
-import view.pieces.King;
+import view.pieces.king.King;
 import view.pieces.Knight;
 import view.pieces.Pawn;
 import view.pieces.Queen;

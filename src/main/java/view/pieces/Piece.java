@@ -8,6 +8,7 @@ import javax.swing.ImageIcon;
 
 import exceptions.NotFoundException;
 import view.Board;
+import view.pieces.king.King;
 
 /**
  * Clase abstracta que representa de forma genérica una pieza de ajedrez. 

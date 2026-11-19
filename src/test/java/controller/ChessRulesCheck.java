@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 import view.Board;
 import view.Square;
 import view.pieces.*;
+import view.pieces.king.King;
 
 /** Verificaciones de reglas ejecutables sin abrir ventanas. */
 public class ChessRulesCheck {

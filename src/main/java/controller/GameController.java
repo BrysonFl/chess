@@ -14,7 +14,8 @@ import view.Board;
 import view.MovementsPanel;
 import view.Square;
 import view.pieces.Bishop;
-import view.pieces.King;
+import view.pieces.king.CastleMovement;
+import view.pieces.king.King;
 import view.pieces.Knight;
 import view.pieces.Pawn;
 import view.pieces.Queen;
@@ -91,7 +92,8 @@ public class GameController implements ActionListener {
 
         boolean capture = currentSquare.getPiece() != null;
         boolean passant = pieceMoved instanceof Pawn && ((Pawn) pieceMoved).validateIsPassant(beforeSquare, currentSquare, capture);
-        King.CastleMovement castle = pieceMoved instanceof King king
+
+        CastleMovement castle = pieceMoved instanceof King king
                 ? king.castleMovement(beforeSquare, currentSquare, board) : null;
 
         notation = UtilValidations.generateCoordinate(pieceMoved, currentSquare, capture, passant);

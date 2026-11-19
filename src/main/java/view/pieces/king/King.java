@@ -1,4 +1,4 @@
-package view.pieces;
+package view.pieces.king;
 
 import enums.PieceType;
 import java.util.ArrayList;
@@ -7,6 +7,8 @@ import java.util.function.Predicate;
 import utils.UtilValidations;
 import view.Board;
 import view.Square;
+import view.pieces.Piece;
+import view.pieces.Rook;
 
 /**
  * Clase representativa de la pieza Rey. 
@@ -68,15 +70,13 @@ public class King extends Piece {
         return movements;
     }
 
-    /** Datos del enroque; el controlador se encarga de mover las piezas. */
-    public record CastleMovement(Square rookOrigin, Square rookTarget, String notation) {}
-
     /** Identifica un enroque entre destinos que ya fueron validados. */
     public CastleMovement castleMovement(Square origin, Square target, Board board) {
         if (origin.getRow() != target.getRow() || origin.getCol() != 4
                 || (target.getCol() != 2 && target.getCol() != 6)) return null;
 
         boolean kingSide = target.getCol() == 6;
+
         return new CastleMovement(
                 board.getSquares()[origin.getRow()][kingSide ? 7 : 0],
                 board.getSquares()[origin.getRow()][kingSide ? 5 : 3],
@@ -89,18 +89,20 @@ public class King extends Piece {
      */
     public boolean canCastle(Square origin, int rookCol, Board board, Predicate<Square> inCheck, Predicate<Square> safeDestination) {
         if (rookCol != 0 && rookCol != 7) return false;
+
         if (origin.getPiece() != this || hasMoved() || origin.getCol() != 4
                 || origin.getRow() != (isWhite() ? 7 : 0) || inCheck.test(origin)) return false;
 
         Piece rook = board.getSquares()[origin.getRow()][rookCol].getPiece();
+
         if (!(rook instanceof Rook) || rook.hasMoved() || rook.isWhite() != isWhite()) return false;
 
         int step = rookCol == 7 ? 1 : -1;
+
         for (int col = 4 + step; col != rookCol; col += step) {
             if (board.getSquares()[origin.getRow()][col].getPiece() != null) return false;
         }
 
-        return safeDestination.test(board.getSquares()[origin.getRow()][4 + step])
-                && safeDestination.test(board.getSquares()[origin.getRow()][4 + 2 * step]);
+        return safeDestination.test(board.getSquares()[origin.getRow()][4 + step]) && safeDestination.test(board.getSquares()[origin.getRow()][4 + 2 * step]);
     }
 }
