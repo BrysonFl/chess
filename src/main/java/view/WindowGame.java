@@ -25,7 +25,7 @@ public class WindowGame extends JFrame {
      * de la interfaz gráfica como área útil de la pantalla, diseño de componentes, título ("Chess Royale"), 
      * el comportamiento de cierre y agregando el tablero y el panel de historial de movimientos.
      */
-    public WindowGame() {
+    public WindowGame(String message) {
         Rectangle screenBounds = new Rectangle(getGraphicsConfiguration().getBounds());
         Insets screenInsets = Toolkit.getDefaultToolkit().getScreenInsets(getGraphicsConfiguration());
         screenBounds.x += screenInsets.left;
@@ -37,7 +37,7 @@ public class WindowGame extends JFrame {
         setLayout(new GridBagLayout());
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setResizable(false);
-        setTitle("Chess Royale");
+        setTitle(message.isEmpty() ? "Chess Royale" : message);
 
         MovementsPanel movementsPanel = new MovementsPanel();
         Board board = new Board(movementsPanel);

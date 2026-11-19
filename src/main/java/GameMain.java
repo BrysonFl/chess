@@ -17,7 +17,7 @@ public class GameMain {
      */
     public static void main(String[] args) {
         
-        WindowGame windowGame = new WindowGame();
+        WindowGame windowGame = new WindowGame("");
         
     }
 }

@@ -30,7 +30,7 @@ public class ChessRulesCheck {
     public static void main(String[] args) throws Exception {
         javax.swing.SwingUtilities.invokeAndWait(() -> {
             try {
-                Board board = new Board();
+                Board board = new Board(null);
                 GameController controller = (GameController) board.getSquares()[0][0].getActionListeners()[0];
                 move(board, 6, 5, 5, 5);
                 move(board, 1, 4, 3, 4);
@@ -40,7 +40,7 @@ public class ChessRulesCheck {
                 board.getSquares()[6][0].doClick(0);
                 require(!board.getSquares()[5][0].isHighlight(), "Partida terminada");
 
-                board = new Board();
+                board = new Board(null);
                 controller = (GameController) board.getSquares()[0][0].getActionListeners()[0];
                 clear(board);
                 board.getSquares()[7][4].setPiece(new King(true));
@@ -54,7 +54,7 @@ public class ChessRulesCheck {
                 require(board.getSquares()[7][5].getPiece() instanceof Rook, "Torre del enroque");
                 require(board.getSquares()[7][7].getPiece() == null, "Origen de torre vacío");
 
-                board = new Board();
+                board = new Board(null);
                 controller = (GameController) board.getSquares()[0][0].getActionListeners()[0];
                 clear(board);
                 board.getSquares()[7][7].setPiece(new King(true));
@@ -63,7 +63,7 @@ public class ChessRulesCheck {
                 move(board, 1, 0, 0, 0);
                 require(board.getSquares()[0][0].getPiece() instanceof Queen, "Promoción");
 
-                board = new Board();
+                board = new Board(null);
                 controller = (GameController) board.getSquares()[0][0].getActionListeners()[0];
                 for (int i = 0; i < 2; i++) {
                     move(board, 7, 6, 5, 5); move(board, 0, 6, 2, 5);
@@ -73,7 +73,7 @@ public class ChessRulesCheck {
                 controller.claimDraw();
                 require(controller.getResult().startsWith("Tablas"), "Reclamación por repetición");
 
-                board = new Board();
+                board = new Board(null);
                 controller = (GameController) board.getSquares()[0][0].getActionListeners()[0];
                 clear(board);
                 board.getSquares()[7][0].setPiece(new King(true));

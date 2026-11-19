@@ -5,6 +5,8 @@ import java.awt.Image;
 import java.net.URL;
 import java.util.List;
 import javax.swing.ImageIcon;
+
+import exceptions.NotFoundException;
 import view.Board;
 
 /**
@@ -43,19 +45,23 @@ public abstract class Piece {
      * @param isWhite Indica si se debe cargar la versión blanca o negra de la imagen.
      */
     private void loadIcon(boolean isWhite) {
-        String builderRoutePiece = new StringBuilder("/pieces/")
-            .append(isWhite ? "w" : "b")
-            .append(this.pieceType.getType())
-            .append(".png")
-            .toString();
-        
-        URL url = getClass().getResource(builderRoutePiece);
-        
-        if (url != null) {
+        try {
+            String builderRoutePiece = new StringBuilder("/pieces/")
+                    .append(isWhite ? "w" : "b")
+                    .append(this.pieceType.getType())
+                    .append(".png")
+                    .toString();
+
+            URL url = getClass().getResource(builderRoutePiece);
+
+            if (url == null) throw new NullPointerException();
+
             Image image = new ImageIcon(url).getImage().getScaledInstance(80, 80, Image.SCALE_SMOOTH);
             this.icon = new ImageIcon(image);
-        } else {
-            System.out.println("No se encontró la imagen");
+        } catch (NotFoundException e) {
+            System.out.println("ERROR: Lo sentimos, no pudimos encontrar la imagen en la ruta dada.");
+        } catch (NullPointerException e) {
+            System.out.println("ERROR: El objeto url está null.");
         }
     }
 

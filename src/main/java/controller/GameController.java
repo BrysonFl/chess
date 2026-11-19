@@ -9,7 +9,6 @@ import java.util.Map;
 import javax.swing.JOptionPane;
 import java.awt.GraphicsEnvironment;
 
-import enums.PieceType;
 import utils.UtilValidations;
 import view.Board;
 import view.MovementsPanel;
@@ -92,7 +91,8 @@ public class GameController implements ActionListener {
 
         boolean capture = currentSquare.getPiece() != null;
         boolean passant = pieceMoved instanceof Pawn && ((Pawn) pieceMoved).validateIsPassant(beforeSquare, currentSquare, capture);
-        boolean castle = pieceMoved instanceof King && Math.abs(beforeSquare.getCol() - currentSquare.getCol()) == 2;
+        King.CastleMovement castle = pieceMoved instanceof King king
+                ? king.castleMovement(beforeSquare, currentSquare, board) : null;
 
         notation = UtilValidations.generateCoordinate(pieceMoved, currentSquare, capture, passant);
 
@@ -100,18 +100,15 @@ public class GameController implements ActionListener {
             board.getSquares()[beforeSquare.getRow()][currentSquare.getCol()].setPiece(null);
         }
 
-        if (castle) {
-            int rookCol = currentSquare.getCol() == 6 ? 7 : 0;
-            int targetCol = currentSquare.getCol() == 6 ? 5 : 3;
-            Square rookSquare = board.getSquares()[beforeSquare.getRow()][rookCol];
-            rookSquare.getPiece().markMoved();
-            board.getSquares()[beforeSquare.getRow()][targetCol].setPiece(rookSquare.getPiece());
-            rookSquare.setPiece(null);
-            notation = rookCol == 7 ? "O-O" : "O-O-O";
+        if (castle != null) {
+            Piece rook = castle.rookOrigin().getPiece();
+            rook.markMoved();
+            castle.rookTarget().setPiece(rook);
+            castle.rookOrigin().setPiece(null);
+            notation = castle.notation();
         }
 
-        board.setEnPassantSquare(pieceMoved instanceof Pawn
-                && Math.abs(beforeSquare.getRow() - currentSquare.getRow()) == 2 ? currentSquare : null);
+        board.setEnPassantSquare(pieceMoved instanceof Pawn && Math.abs(beforeSquare.getRow() - currentSquare.getRow()) == 2 ? currentSquare : null);
 
         currentSquare.setPiece(pieceMoved);
         beforeSquare.setPiece(null);
@@ -168,36 +165,45 @@ public class GameController implements ActionListener {
                 int rows = Math.abs(rowDistance);
                 int cols = Math.abs(colDistance);
 
-                if (piece instanceof Pawn) {
-                    if (rowDistance == (piece.isWhite() ? -1 : 1) && cols == 1) return true;
-                } else if (piece instanceof Knight) {
-                    if ((rows == 2 && cols == 1) || (rows == 1 && cols == 2)) return true;
-                } else if (piece instanceof King) {
-                    if (rows <= 1 && cols <= 1) return true;
-                } else {
-                    boolean diagonal = rows == cols;
-                    boolean straight = rowDistance == 0 || colDistance == 0;
-                    boolean canAttack = (piece instanceof Bishop && diagonal)
-                            || (piece instanceof Rook && straight)
-                            || (piece instanceof Queen && (diagonal || straight));
-
-                    if (!canAttack) continue;
-
-                    int rowStep = Integer.signum(rowDistance);
-                    int colStep = Integer.signum(colDistance);
-                    int targetRow = row + rowStep;
-                    int targetCol = col + colStep;
-
-                    while (targetRow != kingSquare.getRow() || targetCol != kingSquare.getCol()) {
-                        if (board.getSquares()[targetRow][targetCol].getPiece() != null) break;
-                        targetRow += rowStep;
-                        targetCol += colStep;
+                switch (piece) {
+                    case Pawn _ -> {
+                        if (rowDistance == (piece.isWhite() ? -1 : 1) && cols == 1) return true;
                     }
 
-                    if (targetRow == kingSquare.getRow() && targetCol == kingSquare.getCol()) return true;
+                    case Knight _ -> {
+                        if ((rows == 2 && cols == 1) || (rows == 1 && cols == 2)) return true;
+                    }
+
+                    case King _ -> {
+                        if (rows <= 1 && cols <= 1) return true;
+                    }
+
+                    default -> {
+                        boolean diagonal = rows == cols;
+                        boolean straight = rowDistance == 0 || colDistance == 0;
+                        boolean canAttack = (piece instanceof Bishop && diagonal)
+                                || (piece instanceof Rook && straight)
+                                || (piece instanceof Queen && (diagonal || straight));
+
+                        if (!canAttack) continue;
+
+                        int rowStep = Integer.signum(rowDistance);
+                        int colStep = Integer.signum(colDistance);
+                        int targetRow = row + rowStep;
+                        int targetCol = col + colStep;
+
+                        while (targetRow != kingSquare.getRow() || targetCol != kingSquare.getCol()) {
+                            if (board.getSquares()[targetRow][targetCol].getPiece() != null) break;
+                            targetRow += rowStep;
+                            targetCol += colStep;
+                        }
+
+                        if (targetRow == kingSquare.getRow() && targetCol == kingSquare.getCol()) return true;
+                    }
                 }
             }
         }
+
         return false;
     }
 
@@ -282,22 +288,11 @@ public class GameController implements ActionListener {
         return moves;
     }
 
-    /** Valida el historial, las casillas libres y los ataques durante el enroque. */
-    private boolean canCastle(Square king, int rookCol) {
-        if (king.getPiece().hasMoved() || king.getCol() != 4
-                || king.getRow() != (king.getPiece().isWhite() ? 7 : 0) || isKingInCheck(king)) return false;
-
-        Piece rook = board.getSquares()[king.getRow()][rookCol].getPiece();
-
-        if (!(rook instanceof Rook) || rook.hasMoved() || rook.isWhite() != king.getPiece().isWhite()) return false;
-        int step = rookCol == 7 ? 1 : -1;
-
-        for (int col = 4 + step; col != rookCol; col += step) {
-            if (board.getSquares()[king.getRow()][col].getPiece() != null) return false;
-        }
-
-        return isSafeMovement(king, board.getSquares()[king.getRow()][4 + step])
-                && isSafeMovement(king, board.getSquares()[king.getRow()][4 + 2 * step]);
+    /** Delega las reglas del enroque al rey y aporta las consultas de seguridad. */
+    private boolean canCastle(Square origin, int rookCol) {
+        return origin.getPiece() instanceof King king
+                && king.canCastle(origin, rookCol, board, this::isKingInCheck,
+                        target -> isSafeMovement(origin, target));
     }
 
     /** Comprueba el jaque del bando indicado. */
