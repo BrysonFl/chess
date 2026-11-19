@@ -1,3 +1,6 @@
+# Diagrama de clases
+<img width="9728" height="5288" alt="Chess - Classes Diagram drawio" src="https://github.com/user-attachments/assets/a23d6ba2-dbb9-4eb4-b6c8-bafe46f1af89" />
+
 # Pruebas de Chess
 
 La suite usa JUnit Jupiter 6. Los componentes Swing se prueban en el hilo de eventos (EDT).
