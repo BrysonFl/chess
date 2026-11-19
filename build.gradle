@@ -16,5 +16,13 @@ dependencies {
 }
 
 test {
-    useJUnitPlatform()
+    useJUnitPlatform {
+        if (!project.hasProperty('uiTests')) {
+            excludeTags 'ui'
+        }
+    }
+    systemProperty 'java.awt.headless', project.hasProperty('uiTests') ? 'false' : 'true'
+    testLogging {
+        events 'failed', 'skipped'
+    }
 }
