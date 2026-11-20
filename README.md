@@ -1,5 +1,5 @@
 # Diagrama de clases
-<img width="11780" height="5656" alt="Chess - Classes Diagram drawio" src="https://github.com/user-attachments/assets/ec4ee015-7078-4dc0-ae86-9f7cd95dcff3" />
+<img width="11780" height="5656" alt="Chess - Classes Diagram drawio" src="https://github.com/user-attachments/assets/d76548b4-0978-4737-9d4b-8ff6a9d0fd06" />
 
 # Pruebas de Chess
 
