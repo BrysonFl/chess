@@ -47,10 +47,12 @@ class PiecesTest {
      */
     static Set<String> moves(Piece p, int r, int c, Board b) {
         Set<String> result = new HashSet<>();
+
         for (Integer[] m : p.validMovements(r,c,b)) {
             assertTrue(m[0]>=0 && m[0]<8 && m[1]>=0 && m[1]<8);
             assertTrue(result.add(m[0]+","+m[1]), "Destino duplicado");
         }
+
         return result;
     }
 
@@ -71,6 +73,7 @@ class PiecesTest {
                 case "queen" -> new Queen(true); case "knight" -> new Knight(true);
                 default -> new King(true);
             };
+            
             Board b=emptyBoard(); b.getSquares()[3][3].setPiece(p);
             assertEquals(count,moves(p,3,3,b).size());
         });

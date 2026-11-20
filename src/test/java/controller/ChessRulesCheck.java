@@ -6,6 +6,8 @@ import view.Square;
 import view.pieces.*;
 import view.pieces.king.King;
 
+import javax.swing.*;
+
 /**
  * Utilidad de verificación integral de las reglas del ajedrez ejecutable sin necesidad
  * de abrir ventanas gráficas visibles.
@@ -87,7 +89,7 @@ public class ChessRulesCheck {
      * @throws Exception si ocurre un error de ejecución o falla alguna verificación en el hilo de Swing.
      */
     public static void main(String[] args) throws Exception {
-        javax.swing.SwingUtilities.invokeAndWait(() -> {
+        SwingUtilities.invokeAndWait(() -> {
             try {
                 Board board = new Board(null);
                 GameController controller = (GameController) board.getSquares()[0][0].getActionListeners()[0];

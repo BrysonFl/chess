@@ -96,7 +96,7 @@ class WindowIntegrationTest {
      * @return el objeto {@link Timer} ya iniciado que gestionará la respuesta automática.
      */
     private static Timer responder(int choice) {
-        Timer timer=new Timer(100,e -> {
+        Timer timer = new Timer(100,e -> {
             for(Window w:Window.getWindows()) if(w instanceof JDialog && w.isShowing()) {
                 if(choice==JOptionPane.CLOSED_OPTION) w.dispatchEvent(new WindowEvent(w,WindowEvent.WINDOW_CLOSING));
                 else answer(w,choice);

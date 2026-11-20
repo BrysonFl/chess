@@ -48,8 +48,9 @@ class ComponentsTest {
     static <T> T find(Container root,Class<T> type) {
         for(Component c:root.getComponents()) {
             if(type.isInstance(c)) return type.cast(c);
+
             if(c instanceof Container container) {
-                T result=find(container,type); if(result!=null) return result;
+                T result = find(container,type); if(result!=null) return result;
             }
         }
         return null;
