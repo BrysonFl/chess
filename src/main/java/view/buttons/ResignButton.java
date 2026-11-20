@@ -5,11 +5,11 @@ import view.WindowGame;
 import view.frames.ResignGameWindow;
 
 import javax.swing.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.awt.*;
 
 public class ResignButton extends ButtonBase {
+
+    private static final int NEW_GAME_COUNTDOWN_SECONDS = 5;
 
     public ResignButton(String title) {
         super(title);
@@ -23,9 +23,14 @@ public class ResignButton extends ButtonBase {
             if (resignGameWindow.confirmResignation(this)) {
                 controller.resign();
 
-                ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-                scheduler.schedule(() -> JOptionPane.showMessageDialog(this, "Se iniciará una nueva partida en 10 segundo"), 5, TimeUnit.SECONDS);
-                new WindowGame("Iniciaste un juego nuevo");
+                resignGameWindow.showCountdown(this, NEW_GAME_COUNTDOWN_SECONDS, () -> {
+                    Window currentWindow = SwingUtilities.getWindowAncestor(this);
+                    if (currentWindow != null) {
+                        currentWindow.dispose();
+                    }
+
+                    new WindowGame("Chess Royale - Iniciaste un juego nuevo");
+                });
             }
         });
     }
