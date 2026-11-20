@@ -53,7 +53,9 @@ public class ChessRulesCheck {
      * @throws AssertionError si {@code condition} es {@code false}.
      */
     private static void require(boolean condition, String message) {
-        if (!condition) throw new AssertionError(message);
+        if (!condition) {
+            throw new AssertionError(message);
+        }
     }
 
     /**
@@ -78,7 +80,11 @@ public class ChessRulesCheck {
      * @param board el tablero ({@link Board}) cuyas casillas serán limpiadas.
      */
     private static void clear(Board board) {
-        for (Square[] row : board.getSquares()) for (Square square : row) square.setPiece(null);
+        for (Square[] row : board.getSquares()) {
+            for (Square square : row) {
+                square.setPiece(null);
+            }
+        }
     }
 
     /**
@@ -126,10 +132,14 @@ public class ChessRulesCheck {
 
                 board = new Board(null);
                 controller = (GameController) board.getSquares()[0][0].getActionListeners()[0];
+
                 for (int i = 0; i < 2; i++) {
-                    move(board, 7, 6, 5, 5); move(board, 0, 6, 2, 5);
-                    move(board, 5, 5, 7, 6); move(board, 2, 5, 0, 6);
+                    move(board, 7, 6, 5, 5);
+                    move(board, 0, 6, 2, 5);
+                    move(board, 5, 5, 7, 6);
+                    move(board, 2, 5, 0, 6);
                 }
+
                 require(controller.getResult().isEmpty(), "Triple repetición no automática");
                 controller.claimDraw();
                 require(controller.getResult().startsWith("Tablas"), "Reclamación por repetición");

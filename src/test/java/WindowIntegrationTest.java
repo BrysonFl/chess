@@ -37,7 +37,9 @@ class WindowIntegrationTest {
      * Verifica antes de cada prueba que el entorno de ejecución disponga de pantalla gráfica
      * (no sea <i>headless</i>), omitiendo la prueba en caso contrario.
      */
-    @BeforeEach void needsDisplay() { Assumptions.assumeFalse(GraphicsEnvironment.isHeadless()); }
+    @BeforeEach void needsDisplay() {
+        Assumptions.assumeFalse(GraphicsEnvironment.isHeadless());
+    }
 
     /**
      * Cierra y libera todas las ventanas abiertas en el hilo de despacho de eventos (EDT)
@@ -46,7 +48,11 @@ class WindowIntegrationTest {
      * @throws Exception si ocurre un error durante la ejecución en el hilo de eventos de Swing.
      */
     @AfterEach void closeWindows() throws Exception {
-        onEdt(() -> {for(Window w:Window.getWindows()) w.dispose();});
+        onEdt(() -> {
+            for (Window w : Window.getWindows()) {
+                w.dispose();
+            }
+        });
     }
 
     /**
@@ -58,7 +64,7 @@ class WindowIntegrationTest {
     @Test void applicationEntryPointCreatesVisibleGame() throws Exception {
         onEdt(() -> {
             GameMain.main(new String[0]);
-            assertTrue(java.util.Arrays.stream(Window.getWindows()).anyMatch(w->w instanceof WindowGame && w.isShowing()));
+            assertTrue(java.util.Arrays.stream(Window.getWindows()).anyMatch(w -> w instanceof WindowGame && w.isShowing()));
         });
     }
 
@@ -69,7 +75,11 @@ class WindowIntegrationTest {
      * @throws Exception si ocurre una excepción al ejecutar la prueba en el EDT.
      */
     @Test void customWindowTitle() throws Exception {
-        onEdt(() -> {WindowGame w=new WindowGame("Prueba");assertEquals("Prueba",w.getTitle());assertTrue(w.isShowing());});
+        onEdt(() -> {
+            WindowGame w = new WindowGame("Prueba");
+            assertEquals("Prueba", w.getTitle());
+            assertTrue(w.isShowing());
+        });
     }
 
     /**
@@ -80,10 +90,13 @@ class WindowIntegrationTest {
      * @param answer el código de opción (por ejemplo, {@link JOptionPane#YES_OPTION} o {@link JOptionPane#NO_OPTION})
      *               que se asignará al diálogo.
      */
-    private static void answer(Container c,int answer) {
-        for(Component child:c.getComponents()) {
-            if(child instanceof JOptionPane pane) pane.setValue(answer);
-            else if(child instanceof Container container) answer(container,answer);
+    private static void answer(Container c, int answer) {
+        for (Component child : c.getComponents()) {
+            if (child instanceof JOptionPane pane) {
+                pane.setValue(answer);
+            } else if (child instanceof Container container) {
+                answer(container, answer);
+            }
         }
     }
 
@@ -96,12 +109,21 @@ class WindowIntegrationTest {
      * @return el objeto {@link Timer} ya iniciado que gestionará la respuesta automática.
      */
     private static Timer responder(int choice) {
-        Timer timer = new Timer(100,e -> {
-            for(Window w:Window.getWindows()) if(w instanceof JDialog && w.isShowing()) {
-                if(choice==JOptionPane.CLOSED_OPTION) w.dispatchEvent(new WindowEvent(w,WindowEvent.WINDOW_CLOSING));
-                else answer(w,choice);
+        Timer timer = new Timer(100, e -> {
+            for (Window w : Window.getWindows()) {
+                if (w instanceof JDialog && w.isShowing()) {
+                    if (choice == JOptionPane.CLOSED_OPTION) {
+                        w.dispatchEvent(new WindowEvent(w, WindowEvent.WINDOW_CLOSING));
+                    } else {
+                        answer(w, choice);
+                    }
+                }
             }
-        }); timer.start();return timer;
+        });
+
+        timer.start();
+
+        return timer;
     }
 
     /**
@@ -113,10 +135,13 @@ class WindowIntegrationTest {
      */
     @Test void resignationDialogHandlesYesNoAndClose() throws Exception {
         onEdt(() -> {
-            for(int choice:new int[]{JOptionPane.YES_OPTION,JOptionPane.NO_OPTION,JOptionPane.CLOSED_OPTION}) {
-                Timer timer=responder(choice);
-                try {assertEquals(choice==JOptionPane.YES_OPTION,new ResignGameWindow().confirmResignation(null));}
-                finally {timer.stop();}
+            for (int choice : new int[]{JOptionPane.YES_OPTION, JOptionPane.NO_OPTION, JOptionPane.CLOSED_OPTION}) {
+                Timer timer = responder(choice);
+                try {
+                    assertEquals(choice == JOptionPane.YES_OPTION, new ResignGameWindow().confirmResignation(null));
+                } finally {
+                    timer.stop();
+                }
             }
         });
     }
@@ -129,11 +154,18 @@ class WindowIntegrationTest {
      */
     @Test void cancellingResignationKeepsGameActive() throws Exception {
         onEdt(() -> {
-            GameController controller=new GameController(new Board(null),null);
-            ResignButton button=new ResignButton("Abandonar");button.configureAction(controller);
-            Timer timer=responder(JOptionPane.NO_OPTION);
-            try {button.doClick(0);assertEquals("",controller.getResult());}
-            finally {timer.stop();}
+            GameController controller = new GameController(new Board(null), null);
+            ResignButton button = new ResignButton("Abandonar");
+            button.configureAction(controller);
+
+            Timer timer = responder(JOptionPane.NO_OPTION);
+
+            try {
+                button.doClick(0);
+                assertEquals("", controller.getResult());
+            } finally {
+                timer.stop();
+            }
         });
     }
 }
