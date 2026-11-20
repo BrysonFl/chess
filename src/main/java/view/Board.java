@@ -19,24 +19,45 @@ import view.pieces.Queen;
 import view.pieces.Rook;
 
 /**
- * Esta clase es la inicialización del tablero. Contiene la creación de las dimensiones, 
- * la configuración de la cuadrícula, y la colocación inicial de las piezas blancas y oscuras.
- * Extiende de {@code JPanel} para integrarse en la interfaz gráfica del juego.
- * 
+ * Representa el tablero gráfico de ajedrez donde se desarrolla la partida.
+ * <p>
+ * Esta clase extiende {@link JPanel} y gestiona la cuadrícula de {@code 8x8} casillas
+ * ({@link Square}), el renderizado de las coordenadas algebraicas en los márgenes
+ * (filas {@code 1-8} a la izquierda y columnas {@code a-h} en la parte inferior),
+ * la disposición inicial de las piezas blancas y negras, y el seguimiento de la casilla
+ * vulnerable a la captura al paso (<i>en passant</i>).
+ * </p>
+ *
  * @author brysonfl
+ * @see Square
+ * @see MovementsPanel
+ * @see GameController
  */
 public class Board extends JPanel {
     
+    /** Matriz bidimensional de {@code 8x8} que almacena todas las casillas del tablero. */
     private Square[][] squares;
+
+    /**
+     * Casilla que contiene el peón que acaba de avanzar dos escaques en el último turno
+     * y que puede ser capturado al paso en la jugada inmediata, o {@code null} si no aplica.
+     */
     private Square enPassantSquare;
+
+    /** Panel lateral encargado de mostrar el historial de movimientos y el estado de la partida. */
     private final MovementsPanel movementsPanel;
 
     /**
-     * Construye un nuevo tablero de ajedrez configurando su tamaño preferido, 
-     * inicializando la cuadrícula de casillas con su controlador de eventos 
-     * y posicionando las piezas blancas y negras en sus lugares de inicio.
+     * Construye e inicializa un nuevo tablero de ajedrez.
+     * <p>
+     * Configura las dimensiones preferidas del componente ({@code 1000x1000} píxeles),
+     * define el color de fondo y el margen para las coordenadas del tablero, crea la
+     * cuadrícula de casillas vinculada a su {@link GameController} y coloca todas las
+     * piezas blancas y negras en sus posiciones reglamentarias de inicio.
+     * </p>
      * 
-     * @param movementsPanel Panel donde se registrará el historial de movimientos.
+     * @param movementsPanel el panel lateral ({@link MovementsPanel}) donde se registrará
+     *                       el historial de jugadas y se configurarán los controles de partida.
      */
     public Board(MovementsPanel movementsPanel) {
         this.movementsPanel = movementsPanel;
@@ -49,8 +70,12 @@ public class Board extends JPanel {
     }
     
     /**
-     * Este método realiza la inicialización del tablero y de los cuadrados correspondientes. 
-     * Adicionalmente, crea el controlador para poder estar observando los clics en cada recuadro.
+     * Inicializa la cuadrícula de {@code 8x8} casillas del tablero y configura su controlador.
+     * <p>
+     * Establece un diseño {@link GridLayout} de 8 filas por 8 columnas, instancia el
+     * {@link GameController} principal, vincula las acciones del panel de movimientos y
+     * registra dicho controlador como oyente de eventos en cada instancia de {@link Square}.
+     * </p>
      */
     private void loadSquaresBoard() {
         setLayout(new GridLayout(8, 8));
@@ -70,10 +95,14 @@ public class Board extends JPanel {
     }
     
     /**
-     * Dibuja las coordenadas del tablero fuera de las casillas: números a la
-     * izquierda y letras en la parte inferior, con las blancas abajo.
+     * Dibuja el componente y renderiza las coordenadas algebraicas fuera de las casillas.
+     * <p>
+     * Pinta los números de fila ({@code 8} a {@code 1}) centrados verticalmente en el margen
+     * izquierdo y las letras de columna ({@code a} a {@code h}) centradas horizontalmente en
+     * el margen inferior, asumiendo la orientación estándar con las piezas blancas abajo.
+     * </p>
      *
-     * @param g El contexto gráfico utilizado para dibujar.
+     * @param g el contexto gráfico {@link Graphics} utilizado para dibujar el componente.
      */
     @Override
     protected void paintComponent(Graphics g) {
@@ -102,7 +131,12 @@ public class Board extends JPanel {
     }
 
     /**
-     * Este método realiza la inicialización de las piezas blancas en cada recuadro.
+     * Crea y posiciona las piezas blancas en sus casillas iniciales reglamentarias.
+     * <p>
+     * Coloca los ocho peones blancos ({@link Pawn}) en la fila índice {@code 6} (segunda fila
+     * en notación algebraica) y las piezas mayores y menores ({@link Rook}, {@link Knight},
+     * {@link Bishop}, {@link Queen} y {@link King}) en la fila índice {@code 7} (primera fila).
+     * </p>
      */
     private void initializeWhitePieces() {
         for (int col = 0; col < squares.length; col++) {
@@ -123,7 +157,12 @@ public class Board extends JPanel {
     }
     
     /**
-     * Este método realiza la inicialización de las piezas negras en cada recuadro.
+     * Crea y posiciona las piezas negras en sus casillas iniciales reglamentarias.
+     * <p>
+     * Coloca los ocho peones negros ({@link Pawn}) en la fila índice {@code 1} (séptima fila
+     * en notación algebraica) y las piezas mayores y menores ({@link Rook}, {@link Knight},
+     * {@link Bishop}, {@link Queen} y {@link King}) en la fila índice {@code 0} (octava fila).
+     * </p>
      */
     private void initializeBlackPieces() {
         for (int col = 0; col < squares.length; col++) {
@@ -144,27 +183,32 @@ public class Board extends JPanel {
     }
 
     /**
-     * Obtiene la casilla del peón que acaba de avanzar dos posiciones.
+     * Obtiene la casilla donde se encuentra el peón que acaba de avanzar dos posiciones
+     * en el turno inmediato anterior.
      *
-     * @return La casilla del peón vulnerable a captura al paso, o {@code null}.
+     * @return la instancia de {@link Square} que contiene el peón vulnerable a captura
+     *         al paso (<i>en passant</i>), o {@code null} si ningún peón es elegible.
      */
     public Square getEnPassantSquare() {
         return enPassantSquare;
     }
 
     /**
-     * Actualiza el peón vulnerable a captura al paso durante el siguiente turno.
+     * Establece o limpia la casilla del peón vulnerable a una captura al paso durante
+     * el siguiente turno.
      *
-     * @param enPassantSquare La casilla del peón, o {@code null} si no hay ninguno.
+     * @param enPassantSquare la casilla ({@link Square}) donde se ubica el peón que avanzó
+     *                        dos casillas, o {@code null} para limpiar el estado de captura al paso.
      */
     public void setEnPassantSquare(Square enPassantSquare) {
         this.enPassantSquare = enPassantSquare;
     }
 
     /**
-     * Obtiene la matriz bidimensional de casillas que conforman el tablero.
+     * Obtiene la matriz bidimensional de casillas que conforman el tablero de ajedrez.
      * 
-     * @return Una matriz de objetos {@code Square[][]} que representa los recuadros creados.
+     * @return una matriz {@link Square}{@code [8][8]} con todas las casillas del tablero,
+     *         indexadas por fila ({@code 0} a {@code 7}) y columna ({@code 0} a {@code 7}).
      */
     public Square[][] getSquares() {
         return squares;

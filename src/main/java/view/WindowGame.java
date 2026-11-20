@@ -11,19 +11,33 @@ import java.awt.Toolkit;
 import javax.swing.JFrame;
 
 /**
- * Clase principal que representa la ventana contenedora del juego de ajedrez. 
- * Configura las propiedades de la interfaz gráfica de usuario (GUI), tales como 
- * el tamaño del área útil de la pantalla, el diseño de distribución, el título y 
- * la adición del tablero principal del juego junto con el panel de movimientos.
- * 
+ * Representa la ventana principal de la aplicación de ajedrez.
+ * <p>
+ * Esta clase extiende {@link JFrame} y actúa como el contenedor raíz de la interfaz
+ * gráfica de usuario (GUI). Se encarga de calcular el área útil de la pantalla
+ * (descontando barras de tareas o paneles del sistema), configurar el administrador
+ * de diseño ({@link GridBagLayout}), establecer las propiedades de la ventana e
+ * integrar los componentes visuales principales: el tablero de juego ({@link Board})
+ * y el panel de historial de movimientos ({@link MovementsPanel}).
+ * </p>
+ *
  * @author brysonfl
+ * @see Board
+ * @see MovementsPanel
  */
 public class WindowGame extends JFrame {
-    
-     /**
-     * Construye e inicializa la ventana principal del juego, configurando los parámetros 
-     * de la interfaz gráfica como área útil de la pantalla, diseño de componentes, título ("Chess Royale"), 
-     * el comportamiento de cierre y agregando el tablero y el panel de historial de movimientos.
+
+    /**
+     * Construye, configura y muestra la ventana principal del juego de ajedrez.
+     * <p>
+     * Inicializa las dimensiones de la ventana ajustándolas al área máxima disponible
+     * del monitor principal, define un fondo blanco, bloquea el redimensionamiento y
+     * posiciona el tablero junto al panel de registro de jugadas.
+     * </p>
+     *
+     * @param message el título personalizado que se mostrará en la barra de la ventana.
+     *                Si la cadena está vacía ({@code message.isEmpty()}), se asignará
+     *                el título por defecto {@code "Chess Royale"}.
      */
     public WindowGame(String message) {
         Rectangle screenBounds = new Rectangle(getGraphicsConfiguration().getBounds());
@@ -52,5 +66,5 @@ public class WindowGame extends JFrame {
         add(movementsPanel, constraints);
         setVisible(true);
     }
-    
+
 }

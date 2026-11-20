@@ -13,7 +13,38 @@ import java.awt.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static support.SwingTest.*;
 
+/**
+ * Pruebas unitarias para los componentes visuales, utilidades de validación, enumeraciones
+ * y excepciones del proyecto de ajedrez.
+ * <p>
+ * Verifica el estado inicial y actualización de {@link Board} y {@link Square}, el registro
+ * de jugadas en {@link MovementsPanel}, el comportamiento y estilo de los botones de acción
+ * ({@link ButtonBase} y subclases), la generación de coordenadas en {@link UtilValidations},
+ * los valores de {@link PieceType} y la excepción {@link NotFoundException}.
+ * </p>
+ *
+ * @author brysonfl
+ * @see Board
+ * @see MovementsPanel
+ * @see UtilValidations
+ */
 class ComponentsTest {
+
+    /**
+     * Constructor por defecto para el conjunto de pruebas de componentes {@code ComponentsTest}.
+     */
+    ComponentsTest() {
+    }
+
+    /**
+     * Busca recursivamente dentro de un contenedor AWT/Swing el primer componente hijo
+     * que sea instancia del tipo especificado.
+     *
+     * @param <T>  el tipo del componente buscado.
+     * @param root el contenedor raíz ({@link Container}) desde donde iniciar la búsqueda.
+     * @param type la clase ({@link Class}) del componente que se desea localizar.
+     * @return la primera instancia encontrada de tipo {@code T}, o {@code null} si no existe ninguna.
+     */
     static <T> T find(Container root,Class<T> type) {
         for(Component c:root.getComponents()) {
             if(type.isInstance(c)) return type.cast(c);
@@ -23,6 +54,14 @@ class ComponentsTest {
         }
         return null;
     }
+
+    /**
+     * Comprueba que un nuevo {@link Board} inicialice sus 64 casillas ({@link Square}) con
+     * sus coordenadas y oyentes de acción, ubique las 32 piezas iniciales y actualice
+     * adecuadamente los iconos y el estado de resaltado al modificar una casilla.
+     *
+     * @throws Exception si ocurre un error al ejecutar la prueba en el EDT.
+     */
     @Test void boardInitialStateAndSquareUpdates() throws Exception {
         onEdt(() -> {
             Board b=new Board(null);int count=0;
@@ -38,6 +77,13 @@ class ComponentsTest {
             s.setPiece(null);assertNull(s.getIcon());
         });
     }
+
+    /**
+     * Verifica que {@link MovementsPanel} agrupe los movimientos de blancas y negras por turno
+     * en filas de la tabla ({@link JTable}) y que sus celdas sean de solo lectura.
+     *
+     * @throws Exception si ocurre un error al ejecutar la prueba en el EDT.
+     */
     @Test void historyPairsWhiteAndBlackMovesAndIsReadOnly() throws Exception {
         onEdt(() -> {
             MovementsPanel panel=new MovementsPanel();
@@ -49,6 +95,14 @@ class ComponentsTest {
             assertFalse(table.isCellEditable(0,1));
         });
     }
+
+    /**
+     * Comprueba que los botones {@link DrawButton} y {@link ClaimDrawButton} invoquen las
+     * acciones correspondientes en {@link GameController} y que todas las subclases de
+     * {@link ButtonBase} hereden el estilo visual y cursor de mano configurados.
+     *
+     * @throws Exception si ocurre un error al ejecutar la prueba en el EDT.
+     */
     @Test void buttonsDispatchControllerActionsAndInheritStyle() throws Exception {
         onEdt(() -> {
             class Spy extends GameController {
@@ -65,6 +119,13 @@ class ComponentsTest {
             }
         });
     }
+
+    /**
+     * Verifica la conversión de casillas a notación algebraica, la validación de límites
+     * del tablero y la generación de coordenadas de jugadas en {@link UtilValidations}.
+     *
+     * @throws Exception si ocurre un error al ejecutar la prueba en el EDT.
+     */
     @Test void coordinatesAndBounds() throws Exception {
         onEdt(() -> {
             assertEquals("a8",UtilValidations.coordinate(new Square(0,0)));
@@ -77,6 +138,11 @@ class ComponentsTest {
             assertEquals("Nf3",UtilValidations.generateCoordinate(new Knight(true),new Square(5,5),false,false));
         });
     }
+
+    /**
+     * Comprueba que los tipos de pieza definidos en {@link PieceType} conserven sus abreviaturas
+     * y valores numéricos reglamentarios, y que {@link NotFoundException} preserve su mensaje de error.
+     */
     @Test void pieceTypesAndExceptionPreserveTheirData() {
         assertEquals(6,PieceType.values().length);
         assertEquals("P",PieceType.PAWN.getType()); assertEquals(1,PieceType.PAWN.getValue());

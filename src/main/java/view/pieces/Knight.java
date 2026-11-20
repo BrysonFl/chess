@@ -7,14 +7,25 @@ import utils.UtilValidations;
 import view.Board;
 
 /**
- * Clase representativa de la pieza Caballo. 
- * Gestiona los movimientos en forma de "L" característicos del caballo, 
- * evaluando las 8 posibles posiciones en las que puede saltar dentro del tablero.
- * 
+ * Representa la pieza de ajedrez Caballo ({@link PieceType#KNIGHT}).
+ * <p>
+ * Esta clase extiende {@link Piece} y modela el movimiento en forma de "L" característico
+ * del caballo (dos casillas en un eje y una casilla en el eje perpendicular). A diferencia
+ * de las demás piezas del juego, el caballo puede saltar sobre piezas propias o rivales,
+ * evaluando hasta 8 posibles casillas de destino desde su posición actual.
+ * </p>
+ *
  * @author brysonfl
+ * @see Piece
+ * @see PieceType#KNIGHT
+ * @see Board
  */
 public class Knight extends Piece {
 
+    /**
+     * Desplazamientos relativos {@code {deltaFila, deltaColumna}} que definen los 8 saltos
+     * posibles en forma de "L" de un caballo en el tablero.
+     */
     private static final int[][] OFFSETS = {
         {-2, 1}, {-2, -1},
         {2, 1}, {2, -1},
@@ -23,26 +34,33 @@ public class Knight extends Piece {
     };
     
     /**
-     * Construye un nuevo caballo con el color especificado.
-     * 
-     * @param isWhite Define si el caballo es blanco ({@code true}) o negro ({@code false}).
+     * Construye una nueva instancia de {@code Knight} con el color especificado.
+     *
+     * @param isWhite define si el caballo pertenece al bando blanco ({@code true})
+     *                o negro ({@code false}).
      */
     public Knight(boolean isWhite) {
         super(isWhite, PieceType.KNIGHT);
     }
 
     /**
-     * Calcula y retorna una lista con los destinos permitidos por las reglas de movimiento 
-     * para el caballo desde su posición actual en el tablero. El caballo se mueve en "L" 
-     * (dos casillas en una dirección y una perpendicular, o viceversa) y tiene la capacidad 
-     * de saltar por encima de otras piezas.
-     * La comprobación de que el movimiento no deje al rey en jaque corresponde al controlador.
-     * 
-     * @param row   La fila actual en la que se encuentra el caballo.
-     * @param col   La columna actual en la que se encuentra el caballo.
-     * @param board El tablero actual del juego, utilizado para verificar el estado de las casillas.
-     * @return Una lista de arreglos de enteros donde cada elemento representa las coordenadas 
-     *         {@code [fila, columna]} de una casilla válida a la que el caballo puede desplazarse.
+     * Calcula y retorna una lista con los destinos permitidos por las reglas de movimiento
+     * para el caballo desde su posición actual en el tablero.
+     * <p>
+     * Recorre la matriz de desplazamientos {@link #OFFSETS}, descarta las coordenadas que
+     * caigan fuera de los límites del tablero mediante {@link UtilValidations#validateBoard(int, int)}
+     * y agrega las casillas que se encuentren vacías o que contengan una pieza enemiga
+     * capturable según {@link #canCapture(Piece)}. La verificación de que el movimiento
+     * no deje al propio rey en jaque recae en el controlador de la partida.
+     * </p>
+     *
+     * @param row   el índice de la fila actual (0 a 7) en la que se encuentra el caballo.
+     * @param col   el índice de la columna actual (0 a 7) en la que se encuentra el caballo.
+     * @param board el tablero actual del juego ({@link Board}), utilizado para consultar
+     *              el estado de las casillas de destino.
+     * @return una lista de arreglos {@code Integer[]} donde cada elemento contiene las
+     *         coordenadas {@code [fila, columna]} de una casilla válida de destino.
+     * @see UtilValidations#validateBoard(int, int)
      */
     @Override
     public List<Integer[]> validMovements(int row, int col, Board board) {

@@ -23,38 +23,96 @@ import view.pieces.Rook;
 import view.pieces.Piece;
 
 /**
- * Esta clase nos permite hacer la validación de la lógica del juego, 
- * controlando las acciones de los jugadores, los turnos, el movimiento de 
- * las piezas y el estado visual del tablero de ajedrez.
- * 
+ * Controlador principal encargado de gestionar las reglas, el flujo de turnos
+ * y las interacciones del usuario sobre el tablero de ajedrez.
+ * <p>
+ * Implementa {@link ActionListener} para responder a los clics sobre las casillas
+ * ({@link Square}), coordinando la selección de piezas, el resaltado y filtrado de
+ * movimientos legales (evitando dejar al propio rey en jaque), la ejecución de
+ * jugadas especiales (enroque, captura al paso y coronación de peones), el registro
+ * de notación algebraica en {@link MovementsPanel} y la detección de condiciones
+ * de fin de partida (jaque mate, ahogado, insuficiencia de material, repetición de
+ * posiciones, regla de los 50/75 movimientos, acuerdo de tablas y abandono).
+ * </p>
+ *
  * @author brysonfl
+ * @see Board
+ * @see MovementsPanel
+ * @see Square
+ * @see Piece
  */
 public class GameController implements ActionListener {
     
+    /**
+     * Referencia al tablero gráfico de ajedrez que contiene la cuadrícula de casillas y piezas.
+     */
     private final Board board;
+
+    /**
+     * Panel lateral encargado de mostrar el historial de jugadas y el estado de la partida.
+     */
     private final MovementsPanel movementsPanel;
     
+    /**
+     * Indica de qué bando es el turno actual: {@code true} para las blancas, {@code false} para las negras.
+     */
     private boolean whitesMove = true;
 
+    /**
+     * Contador de medios movimientos (<i>plies</i>) consecutivos realizados sin capturas ni avances de peón,
+     * utilizado para las reglas de tablas de los 50 y 75 movimientos.
+     */
     private int movementsWithoutCaptures;
     
+    /**
+     * Casilla seleccionada previamente como origen de un posible movimiento.
+     */
     private Square beforeSquare;
+
+    /**
+     * Indica si la partida ha finalizado ({@code true}) y no admite más movimientos.
+     */
     private boolean gameOver;
+
+    /**
+     * Mensaje descriptivo con el resultado final de la partida, o una cadena vacía si sigue en curso.
+     */
     private String result = "";
+
+    /**
+     * Registro de frecuencias de cada posición alcanzada en la partida, indexado por la clave
+     * generada en {@link #positionKey()}, para evaluar la triple y quíntuple repetición.
+     */
     private final Map<String, Integer> positions = new HashMap<>();
 
+    /**
+     * Construye un nuevo controlador de juego asociándolo al tablero y al panel de movimientos.
+     *
+     * @param board          el tablero de ajedrez ({@link Board}) sobre el que se desarrolla la partida.
+     * @param movementsPanel el panel lateral ({@link MovementsPanel}) donde se registran las jugadas
+     *                       y se actualiza el estado de la partida (puede ser {@code null} en entornos de prueba).
+     */
     public GameController(Board board, MovementsPanel movementsPanel) {
         this.board = board;
         this.movementsPanel = movementsPanel;
     }
 
     /**
-     * Maneja los eventos de acción generados al interactuar con las casillas del tablero. 
-     * Controla la selección de piezas, la validación de sus movimientos permitidos, 
-     * la ejecución de dichos movimientos cuando se selecciona una casilla resaltada, 
-     * y la limpieza de la selección si se hace clic en una casilla vacía no válida.
-     * 
-     * @param e El evento de acción que contiene la fuente (casilla) donde ocurrió el clic.
+     * Maneja los eventos de acción generados al hacer clic sobre las casillas del tablero.
+     * <p>
+     * Si la partida aún no ha terminado, evalúa la casilla pulsada ({@link Square}):
+     * </p>
+     * <ul>
+     *   <li>Si existe una casilla de origen seleccionada ({@code beforeSquare}) y la casilla actual
+     *       está resaltada como destino válido, ejecuta el movimiento con {@link #movePiece(Square)}.</li>
+     *   <li>Si la casilla pulsada contiene una pieza, valida y resalta sus movimientos legales
+     *       mediante {@link #validatePieceMovements(Square)} y la almacena como nueva casilla de origen.</li>
+     *   <li>Si se pulsa una casilla vacía que no está resaltada, limpia cualquier selección o
+     *       resaltado previo con {@link #clearHighlights()}.</li>
+     * </ul>
+     *
+     * @param e el evento de acción ({@link ActionEvent}) cuya fuente ({@link ActionEvent#getSource()})
+     *          es la instancia de {@link Square} donde ocurrió el clic.
      */
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -80,11 +138,19 @@ public class GameController implements ActionListener {
     }
     
     /**
-     * Mueve una pieza desde la casilla de origen (beforeSquare) hasta la casilla de destino 
-     * especificada, gestionando reglas especiales del juego (como la captura al paso en los peones),
-     * actualizando el estado del tablero, incrementando el contador de movimientos y cambiando el turno.
-     * 
-     * @param currentSquare Es el cuadraro al que se le ha dado clic actualmente
+     * Ejecuta el desplazamiento de una pieza desde la casilla de origen ({@code beforeSquare})
+     * hasta la casilla de destino indicada.
+     * <p>
+     * Este método gestiona de forma integral las reglas especiales de movimiento (captura al paso,
+     * enroque corto/largo y coronación de peones), actualiza las referencias de las piezas en el
+     * tablero, reinicia o incrementa el contador de movimientos sin capturas, alterna el turno al
+     * bando contrario, verifica el estado de jaque de los reyes, registra la nueva posición en el
+     * historial de repeticiones, evalúa si la partida ha terminado y añade la jugada en notación
+     * algebraica al {@link MovementsPanel}.
+     * </p>
+     *
+     * @param currentSquare la casilla de destino ({@link Square}) seleccionada por el jugador
+     *                      para completar el movimiento.
      */
     private void movePiece(Square currentSquare) {
         String notation;
@@ -139,7 +205,9 @@ public class GameController implements ActionListener {
     }
     
     /**
-     * Actualiza el destello de los reyes según los ataques de las piezas contrarias.
+     * Recorre todas las casillas del tablero y actualiza el indicador visual de jaque
+     * ({@link Square#setCheck(boolean)}) en aquellas casillas ocupadas por un {@link King}
+     * que se encuentre amenazado por piezas adversarias.
      */
     private void validateKingsCheck() {
         for (int row = 0; row < 8; row++) {
@@ -151,10 +219,17 @@ public class GameController implements ActionListener {
     }
 
     /**
-     * Comprueba si alguna pieza contraria amenaza la casilla del rey.
+     * Determina si el rey ubicado en la casilla especificada se encuentra bajo ataque
+     * directo (en jaque) por alguna pieza del bando contrario.
+     * <p>
+     * Evalúa los patrones geométricos de ataque de peones, caballos, reyes y piezas
+     * deslizantes (alfiles, torres y damas), verificando para estas últimas que no
+     * existan piezas intermedias bloqueando la trayectoria.
+     * </p>
      *
-     * @param kingSquare La casilla donde se encuentra el rey.
-     * @return {@code true} si el rey está en jaque.
+     * @param kingSquare la casilla ({@link Square}) donde se ubica el rey que se desea evaluar.
+     * @return {@code true} si al menos una pieza enemiga amenaza la casilla del rey;
+     *         {@code false} en caso contrario.
      */
     private boolean isKingInCheck(Square kingSquare) {
         for (int row = 0; row < 8; row++) {
@@ -210,11 +285,12 @@ public class GameController implements ActionListener {
     }
 
     /**
-     * Valida y resalta en el tablero los movimientos legales disponibles para la pieza 
-     * ubicada en la casilla especificada, siempre y cuando sea el turno del jugador 
-     * dueño de dicha pieza.
-     * 
-     * @param square La casilla que contiene la pieza cuyos movimientos se van a validar y resaltar.
+     * Valida y resalta visualmente en el tablero todas las casillas de destino legales
+     * disponibles para la pieza situada en la casilla indicada, siempre que corresponda
+     * al turno del bando propietario de dicha pieza.
+     *
+     * @param square la casilla ({@link Square}) que contiene la pieza cuyos movimientos
+     *               legales se desean calcular y resaltar.
      */
     private void validatePieceMovements(Square square) {
         clearHighlights();
@@ -237,12 +313,18 @@ public class GameController implements ActionListener {
     }
     
     /**
-     * Simula el movimiento para evitar dejar al propio rey en jaque.
-     * Restaura las piezas después de comprobar la posición, incluida la captura al paso.
+     * Simula temporalmente un movimiento entre una casilla de origen y una de destino
+     * para comprobar que dicha jugada no deje ni mantenga al propio rey en estado de jaque.
+     * <p>
+     * Contempla tanto desplazamientos y capturas ordinarias como la retirada temporal del
+     * peón adversario en una captura al paso, restaurando siempre el estado original del
+     * tablero en el bloque {@code finally}.
+     * </p>
      *
-     * @param origin La casilla de origen.
-     * @param target La casilla de destino.
-     * @return {@code true} si el movimiento no deja al rey amenazado.
+     * @param origin la casilla de origen ({@link Square}) donde se encuentra inicialmente la pieza.
+     * @param target la casilla de destino ({@link Square}) hacia la que se pretende mover la pieza.
+     * @return {@code true} si tras efectuar el movimiento el rey del bando que mueve queda libre
+     *         de jaque; {@code false} si el rey quedaría amenazado.
      */
     private boolean isSafeMovement(Square origin, Square target) {
         Piece moved = origin.getPiece();
@@ -276,7 +358,19 @@ public class GameController implements ActionListener {
         }
     }
 
-    /** Obtiene los movimientos seguros y añade los enroques permitidos. */
+    /**
+     * Obtiene la lista de coordenadas de todos los movimientos estrictamente legales para la
+     * pieza situada en la casilla especificada.
+     * <p>
+     * Filtra los movimientos candidatos de la pieza descartando aquellos que dejarían al propio
+     * rey en jaque ({@link #isSafeMovement(Square, Square)}) e incorpora, en caso de tratarse de
+     * un {@link King}, los movimientos de enroque corto y largo que resulten reglamentarios.
+     * </p>
+     *
+     * @param square la casilla ({@link Square}) cuya pieza se desea consultar.
+     * @return una lista de arreglos {@code Integer[]} de dos elementos ({@code [fila, columna]})
+     *         con las posiciones de destino legales.
+     */
     private List<Integer[]> legalMovements(Square square) {
         List<Integer[]> moves = square.getPiece().validMovements(square.getRow(), square.getCol(), board);
         moves.removeIf(move -> !isSafeMovement(square, board.getSquares()[move[0]][move[1]]));
@@ -290,14 +384,34 @@ public class GameController implements ActionListener {
         return moves;
     }
 
-    /** Delega las reglas del enroque al rey y aporta las consultas de seguridad. */
+    /**
+     * Verifica si el rey ubicado en la casilla de origen puede realizar legalmente el enroque
+     * con la torre situada en la columna especificada.
+     * <p>
+     * Delega la comprobación estructural en {@link King#canCastle} proporcionando predicados
+     * para evaluar si el rey está actualmente en jaque y si las casillas de paso son seguras.
+     * </p>
+     *
+     * @param origin  la casilla ({@link Square}) donde se encuentra el rey.
+     * @param rookCol el índice de la columna de la torre con la que se intenta enrocar
+     *                ({@code 0} para enroque largo, {@code 7} para enroque corto).
+     * @return {@code true} si se cumplen todas las condiciones reglamentarias para enrocar;
+     *         {@code false} en caso contrario.
+     */
     private boolean canCastle(Square origin, int rookCol) {
         return origin.getPiece() instanceof King king
                 && king.canCastle(origin, rookCol, board, this::isKingInCheck,
                         target -> isSafeMovement(origin, target));
     }
 
-    /** Comprueba el jaque del bando indicado. */
+    /**
+     * Comprueba si el rey del bando especificado se encuentra actualmente en jaque.
+     *
+     * @param white {@code true} para consultar el estado del rey blanco;
+     *              {@code false} para consultar el del rey negro.
+     * @return {@code true} si el rey del bando indicado está en jaque;
+     *         {@code false} si no está amenazado o no se encuentra en el tablero.
+     */
     private boolean inCheck(boolean white) {
         for (Square[] row : board.getSquares()) {
             for (Square square : row) {
@@ -308,7 +422,17 @@ public class GameController implements ActionListener {
         return false;
     }
 
-    /** Da prioridad al mate antes de aplicar las tablas automáticas. */
+    /**
+     * Evalúa el estado global del tablero tras cada movimiento para determinar si la partida
+     * ha concluido automáticamente.
+     * <p>
+     * Otorga prioridad a la falta de movimientos legales (declarando jaque mate si el jugador
+     * al turno está en jaque, o tablas por rey ahogado en caso contrario), y posteriormente
+     * verifica las condiciones de tablas automáticas: material insuficiente, quíntuple repetición
+     * de posición y regla de los 75 movimientos (150 medios movimientos) sin capturas ni avances
+     * de peón.
+     * </p>
+     */
     private void updateGameState() {
         boolean canMove = false;
 
@@ -325,7 +449,22 @@ public class GameController implements ActionListener {
         else if (movementsWithoutCaptures >= 150) finish("Tablas por 75 movimientos sin capturas ni movimientos de peón.");
     }
 
-    /** Detecta finales sin posibilidad de mate con reyes, un menor o alfiles del mismo color. */
+    /**
+     * Determina si las piezas restantes en el tablero constituyen material insuficiente
+     * para que cualquiera de los dos bandos pueda alcanzar un jaque mate legal.
+     * <p>
+     * Considera como material insuficiente los finales de:
+     * </p>
+     * <ul>
+     *   <li>Rey contra rey.</li>
+     *   <li>Rey y una única pieza menor (alfil o caballo) contra rey.</li>
+     *   <li>Reyes y uno o más alfiles cuando todos los alfiles presentes se desplazan
+     *       por casillas del mismo color, sin presencia de caballos ni otras piezas.</li>
+     * </ul>
+     *
+     * @return {@code true} si ningún bando dispone de material suficiente para dar jaque mate;
+     *         {@code false} en caso contrario.
+     */
     private boolean insufficientMaterial() {
         int minors = 0;
         int knights = 0;
@@ -356,7 +495,16 @@ public class GameController implements ActionListener {
         return minors <= 1 || knights == 0 && sameColor;
     }
 
-    /** Reclama tablas cuando la posición actual cumple las condiciones reglamentarias. */
+    /**
+     * Procesa la solicitud del jugador actual para reclamar tablas reglamentarias por
+     * triple repetición de posición o por la regla de los 50 movimientos (100 medios movimientos).
+     * <p>
+     * Si la condición ya se cumple en la posición presente del tablero, finaliza la partida
+     * inmediatamente. Si la condición se alcanzaría mediante una jugada legal del jugador al
+     * turno, permite seleccionar y declarar dicha jugada a través de un cuadro de diálogo
+     * (en entornos gráficos no <i>headless</i>) para formalizar las tablas.
+     * </p>
+     */
     public void claimDraw() {
         if (gameOver) return;
 
@@ -414,7 +562,14 @@ public class GameController implements ActionListener {
                 gameOver ? result : "No se ha realizado una reclamación válida de tablas.");
     }
 
-    /** Permite que el contrario acepte una propuesta de tablas. */
+    /**
+     * Presenta un cuadro de diálogo de confirmación para ofrecer tablas de mutuo acuerdo
+     * al jugador contrario.
+     * <p>
+     * Si la partida está en curso, el entorno no es <i>headless</i> y el oponente acepta la
+     * propuesta ({@link JOptionPane#YES_OPTION}), la partida concluye en tablas por acuerdo.
+     * </p>
+     */
     public void offerDraw() {
         if (gameOver || GraphicsEnvironment.isHeadless()) return;
 
@@ -425,12 +580,21 @@ public class GameController implements ActionListener {
         if (answer == JOptionPane.YES_OPTION) finish("Tablas por acuerdo.");
     }
 
-    /** Termina la partida por abandono del jugador al turno. */
+    /**
+     * Finaliza la partida en curso declarando el abandono (rendición) del jugador que
+     * tiene el turno actual y otorgando la victoria al bando adversario.
+     */
     public void resign() {
         if (!gameOver) finish("Abandono. Ganan las " + (whitesMove ? "negras." : "blancas."));
     }
 
-    /** Guarda el resultado y bloquea las jugadas posteriores. */
+    /**
+     * Marca la partida como terminada, almacena el mensaje con el resultado, limpia
+     * los resaltados y selecciones activas del tablero y notifica el estado final
+     * al panel de movimientos ({@link MovementsPanel}).
+     *
+     * @param message el texto descriptivo con el motivo de finalización y el resultado de la partida.
+     */
     private void finish(String message) {
         gameOver = true;
         result = message;
@@ -439,12 +603,28 @@ public class GameController implements ActionListener {
         if (movementsPanel != null) movementsPanel.setGameStatus(message);
     }
 
-    /** @return El resultado de la partida, o una cadena vacía si continúa. */
+    /**
+     * Obtiene el texto descriptivo con el resultado de la partida.
+     *
+     * @return una cadena con el resultado final si la partida ha concluido (por ejemplo,
+     *         {@code "Jaque mate. Ganan las blancas."}), o una cadena vacía ({@code ""})
+     *         si la partida aún continúa en juego.
+     */
     public String getResult() {
         return result;
     }
 
-    /** Identifica posición, turno, derechos de enroque y captura al paso legal. */
+    /**
+     * Genera una clave única en formato de texto que codifica el estado completo de la
+     * posición actual conforme a las reglas de repetición de la FIDE.
+     * <p>
+     * La clave incluye el bando al turno ({@code "w"} o {@code "b"}), la disposición de
+     * todas las piezas en las 64 casillas, los derechos vigentes de enroque para ambos
+     * reyes y torres, y la disponibilidad real de una captura al paso estrictamente legal.
+     * </p>
+     *
+     * @return una cadena de texto que identifica unívocamente la posición actual del tablero.
+     */
     private String positionKey() {
         StringBuilder key = new StringBuilder(whitesMove ? "w" : "b");
 
@@ -483,8 +663,8 @@ public class GameController implements ActionListener {
     }
 
     /**
-     * Limpia y desactiva el resaltado de todas las casillas del tablero, 
-     * estableciendo su propiedad de highlight en falso.
+     * Desactiva el resaltado visual de movimiento válido en todas las casillas del tablero,
+     * estableciendo su estado {@link Square#setHighlight(boolean)} en {@code false}.
      */
     private void clearHighlights() {
         for (int row = 0; row < 8; row++) {

@@ -12,30 +12,47 @@ import javax.swing.JButton;
 import view.pieces.Piece;
 
 /**
- * Clase que representa una casilla individual dentro del tablero de ajedrez. 
- * Extiende de {@code JButton} para permitir la interacción del usuario mediante clics, 
- * gestionando su posición, el color de fondo alternado, la pieza que contiene y 
- * el estado de resaltado visual para los movimientos válidos.
+ * Representa una casilla individual dentro de la cuadrícula del tablero de ajedrez.
+ * <p>
+ * Esta clase extiende {@link JButton} para permitir la interacción del jugador mediante
+ * eventos de clic. Gestiona sus coordenadas de fila y columna dentro del tablero, su color
+ * de fondo alternado (claro u oscuro), la referencia y el icono gráfico de la pieza
+ * ({@link Piece}) que la ocupa, así como los efectos visuales de resaltado para movimientos
+ * válidos y de alerta cuando el rey ({@link King}) se encuentra en jaque.
+ * </p>
  * 
  * @author brysonfl
+ * @see Board
+ * @see Piece
+ * @see King
  */
 public class Square extends JButton {
     
+    /** Pieza de ajedrez ubicada actualmente en esta casilla, o {@code null} si está vacía. */
     private Piece piece;
     
+    /** Índice de la fila de la casilla en el tablero (de {@code 0} a {@code 7}). */
     private int row;
+
+    /** Índice de la columna de la casilla en el tablero (de {@code 0} a {@code 7}). */
     private int col;
     
+    /** Indica si la casilla debe mostrarse resaltada como destino de un movimiento válido. */
     private boolean highlight = false;
+
+    /** Indica si debe renderizarse el efecto visual de jaque sobre la casilla. */
     private boolean check = false;
     
     /**
-     * Construye una nueva casilla indicando su posición en el tablero. 
-     * Configura el estilo visual inicial del botón, incluyendo el color de las casillas 
-     * (claro u oscuro según sus coordenadas), el cursor y los bordes.
+     * Construye e inicializa una nueva casilla en la posición especificada del tablero.
+     * <p>
+     * Configura las propiedades visuales del botón (opacidad, ausencia de bordes y foco,
+     * cursor de mano) y asigna automáticamente el color tradicional claro ({@code 0xF0D9B5})
+     * u oscuro ({@code 0xB58863}) en función de la paridad de la suma de su fila y columna.
+     * </p>
      * 
-     * @param row La fila en la que se encuentra la casilla (0 a 7).
-     * @param col La columna en la que se encuentra la casilla (0 a 7).
+     * @param row el índice de la fila en la que se ubica la casilla (de {@code 0} a {@code 7}).
+     * @param col el índice de la columna en la que se ubica la casilla (de {@code 0} a {@code 7}).
      */
     public Square(int row, int col) {
         setOpaque(true);
@@ -50,19 +67,24 @@ public class Square extends JButton {
     }
 
     /**
-     * Obtiene la pieza de ajedrez actualmente ubicada en esta casilla.
+     * Obtiene la pieza de ajedrez ubicada actualmente en esta casilla.
      * 
-     * @return Un objeto {@code Piece} si hay una pieza presente, o {@code null} si la casilla está vacía.
+     * @return la instancia de {@link Piece} presente en la casilla, o {@code null}
+     *         si la casilla se encuentra vacía.
      */
     public Piece getPiece() {
         return piece;
     }
 
     /**
-     * Establece o cambia la pieza ubicada en esta casilla, actualizando 
-     * automáticamente su icono gráfico en el botón.
+     * Asigna o elimina la pieza ubicada en esta casilla y actualiza su icono gráfico.
+     * <p>
+     * Si la pieza proporcionada no es {@code null} y dispone de un icono válido, dicho
+     * icono se establece en el botón; de lo contrario, se limpia el icono visual.
+     * </p>
      * 
-     * @param piece La pieza que se asignará a la casilla (o {@code null} para dejarla vacía).
+     * @param piece la pieza ({@link Piece}) que ocupará la casilla, o {@code null}
+     *              para vaciarla.
      */
     public void setPiece(Piece piece) {
         this.piece = piece;
@@ -75,9 +97,9 @@ public class Square extends JButton {
     }
 
     /**
-     * Obtiene el índice de la fila a la que pertenece esta casilla.
+     * Obtiene el índice de la fila a la que pertenece esta casilla dentro del tablero.
      * 
-     * @return El número de fila.
+     * @return el índice de fila (entre {@code 0} y {@code 7}).
      */
     public int getRow() {
         return row;
@@ -86,16 +108,16 @@ public class Square extends JButton {
     /**
      * Establece el índice de la fila para esta casilla.
      * 
-     * @param row El nuevo valor de la fila.
+     * @param row el nuevo índice de fila (entre {@code 0} y {@code 7}).
      */
     public void setRow(int row) {
         this.row = row;
     }
 
     /**
-     * Obtiene el índice de la columna a la que pertenece esta casilla.
+     * Obtiene el índice de la columna a la que pertenece esta casilla dentro del tablero.
      * 
-     * @return El número de columna.
+     * @return el índice de columna (entre {@code 0} y {@code 7}).
      */
     public int getCol() {
         return col;
@@ -104,16 +126,18 @@ public class Square extends JButton {
     /**
      * Establece el índice de la columna para esta casilla.
      * 
-     * @param col El nuevo valor de la columna.
+     * @param col el nuevo índice de columna (entre {@code 0} y {@code 7}).
      */
     public void setCol(int col) {
         this.col = col;
     }
 
     /**
-     * Activa o desactiva el estado de resaltado de la casilla y fuerza un redibujado visual.
+     * Activa o desactiva el indicador visual de movimiento válido en la casilla y
+     * solicita su redibujado inmediato.
      * 
-     * @param highlight {@code true} para resaltar la casilla, {@code false} para quitar el resaltado.
+     * @param highlight {@code true} para mostrar el círculo de resaltado sobre la casilla;
+     *                  {@code false} para ocultarlo.
      */
     public void setHighlight(boolean highlight) {
         this.highlight = highlight;
@@ -121,9 +145,11 @@ public class Square extends JButton {
     }
 
     /**
-     * Activa o desactiva el destello que indica que el rey está en jaque.
+     * Activa o desactiva el efecto de destello radial que indica que el rey en esta
+     * casilla se encuentra en estado de jaque, forzando el redibujado del componente.
      *
-     * @param check {@code true} para mostrar el destello, {@code false} para quitarlo.
+     * @param check {@code true} para activar el destello visual de jaque;
+     *              {@code false} para desactivarlo.
      */
     public void setCheck(boolean check) {
         this.check = check;
@@ -131,19 +157,26 @@ public class Square extends JButton {
     }
 
     /**
-     * Indica si la casilla se encuentra actualmente resaltada (como movimiento válido).
+     * Indica si la casilla se encuentra actualmente resaltada como destino de un
+     * movimiento válido.
      * 
-     * @return {@code true} si está resaltada, {@code false} en caso contrario.
+     * @return {@code true} si la casilla está resaltada; {@code false} en caso contrario.
      */
     public boolean isHighlight() {
         return highlight;
     }
 
     /**
-     * Sobrescribe el método de renderizado para pintar un indicador visual 
-     * (un círculo semitransparente) sobre la casilla cuando se encuentra resaltada.
+     * Renderiza la casilla junto con los indicadores visuales de estado especiales.
+     * <p>
+     * Además del renderizado estándar del botón, si el estado {@code check} está activo
+     * y la casilla contiene una instancia de {@link King}, dibuja un degradado radial
+     * cálido ({@link RadialGradientPaint}) bajo el icono del rey. Si el estado
+     * {@code highlight} está activo, dibuja un círculo central semitransparente que
+     * señala un movimiento legal disponible.
+     * </p>
      * 
-     * @param g El contexto gráfico utilizado para dibujar.
+     * @param g el contexto gráfico {@link Graphics} utilizado para pintar la casilla.
      */
     @Override
     protected void paintComponent(Graphics g) {
@@ -179,10 +212,10 @@ public class Square extends JButton {
     }
 
     /**
-     * Retorna una representación en cadena de texto del objeto {@code Square}, 
-     * detallando la pieza contenida, su fila y su columna.
+     * Devuelve una representación en cadena de texto de esta casilla, incluyendo
+     * la pieza que contiene y sus coordenadas de fila y columna.
      * 
-     * @return Una cadena con los atributos principales de la casilla.
+     * @return una cadena descriptiva con los valores de {@code piece}, {@code row} y {@code col}.
      */
     @Override
     public String toString() {

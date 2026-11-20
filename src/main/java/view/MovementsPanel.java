@@ -12,25 +12,50 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 
 /**
- * Panel lateral encargado de mostrar y registrar el historial de movimientos
- * realizados durante la partida de ajedrez, organizados por número de turno,
- * jugadas de las piezas blancas y jugadas de las piezas negras.
+ * Representa el panel lateral de la interfaz gráfica encargado de mostrar el historial
+ * de movimientos y los controles de estado de la partida.
+ * <p>
+ * Esta clase extiende {@link JPanel} y presenta una tabla desplazable ({@link JTable})
+ * que organiza las jugadas por número de turno, movimiento de las piezas blancas y
+ * movimiento de las piezas negras. Además, integra una etiqueta de estado de la partida
+ * y los botones de acción para abandonar ({@link ResignButton}), proponer tablas
+ * ({@link DrawButton}) o reclamar tablas ({@link ClaimDrawButton}).
+ * </p>
  *
  * @author brysonfl
+ * @see Board
+ * @see GameController
+ * @see ResignButton
+ * @see DrawButton
+ * @see ClaimDrawButton
  */
 public class MovementsPanel extends JPanel {
 
+    /** Etiqueta que muestra el estado actual o el resultado final de la partida. */
     private final JLabel gameStatus = new JLabel("Partida en curso");
+
+    /** Modelo de datos no editable que respalda la tabla de historial de jugadas. */
     private final DefaultTableModel tableModel;
+
+    /** Tabla visual donde se listan los turnos y movimientos de blancas y negras. */
     private final JTable movementsTable;
 
+    /** Botón para que el jugador en turno abandone la partida. */
     private final ResignButton resignButton;
+
+    /** Botón para proponer tablas por mutuo acuerdo al oponente. */
     private final DrawButton drawButton;
+
+    /** Botón para reclamar tablas cuando se cumple una regla aplicable. */
     private final ClaimDrawButton claimDrawButton;
 
     /**
-     * Construye e inicializa el panel de historial de movimientos,
-     * configurando su tamaño, diseño, encabezado y la tabla de jugadas.
+     * Construye e inicializa el panel lateral de historial de movimientos.
+     * <p>
+     * Instancia los botones de acción de la partida, configura las dimensiones preferidas,
+     * el diseño ({@link BorderLayout}), los colores y márgenes del panel, añade el título
+     * superior e inicializa la tabla de jugadas dentro de un {@link JScrollPane}.
+     * </p>
      */
     public MovementsPanel() {
         resignButton = new ResignButton("Abandonar");
@@ -68,10 +93,14 @@ public class MovementsPanel extends JPanel {
     }
 
     /**
-     * Dibuja el fondo y el borde redondeado del panel de historial.
-     * El margen interior mantiene la tabla dentro de las esquinas del panel.
+     * Dibuja el fondo y el contorno con esquinas redondeadas del panel de historial.
+     * <p>
+     * Utiliza suavizado de bordes (<i>antialiasing</i>) para pintar un rectángulo
+     * redondeado con el color de fondo del componente, manteniendo la tabla y los
+     * controles dentro de los márgenes interiores.
+     * </p>
      *
-     * @param g El contexto gráfico utilizado para dibujar.
+     * @param g el contexto gráfico {@link Graphics} utilizado para renderizar el panel.
      */
     @Override
     protected void paintComponent(Graphics g) {
@@ -85,7 +114,18 @@ public class MovementsPanel extends JPanel {
         g2D.dispose();
     }
 
-    /** Conecta las acciones de finalización al controlador de esta partida. */
+    /**
+     * Vincula los botones de finalización de partida al controlador principal y los
+     * añade en la sección inferior del panel.
+     * <p>
+     * Configura las acciones de {@link ResignButton}, {@link DrawButton} y
+     * {@link ClaimDrawButton} con el {@link GameController} indicado y agrupa dichos
+     * botones junto a la etiqueta de estado de la partida en la región {@link BorderLayout#SOUTH}.
+     * </p>
+     *
+     * @param controller el controlador de la partida ({@link GameController}) que gestionará
+     *                   los eventos de abandono y tablas.
+     */
     public void configureGameActions(GameController controller) {
         JPanel actions = new JPanel(new GridLayout(0, 1, 4, 4));
         actions.setOpaque(false);
@@ -103,14 +143,23 @@ public class MovementsPanel extends JPanel {
         add(actions, BorderLayout.SOUTH);
     }
 
-    /** Muestra el resultado de la partida en el panel lateral. */
+    /**
+     * Actualiza el texto descriptivo del estado o resultado de la partida en el panel lateral.
+     *
+     * @param status la cadena de texto con el nuevo estado de la partida
+     *               (por ejemplo, {@code "Partida en curso"} o el motivo de finalización).
+     */
     public void setGameStatus(String status) {
         gameStatus.setText(status);
     }
 
     /**
-     * Configura la apariencia visual de la tabla de movimientos, incluyendo
-     * colores, fuentes, altura de filas, anchos de columnas y alineación.
+     * Configura la apariencia visual y el comportamiento de interacción de la tabla de movimientos.
+     * <p>
+     * Define la tipografía, la altura de las filas y desactiva el foco y la selección de celdas,
+     * además de bloquear el reordenamiento y redimensionamiento de las columnas en el encabezado
+     * ({@link JTableHeader}).
+     * </p>
      */
     private void configureTableStyle() {
         movementsTable.setFont(new Font("SansSerif", Font.PLAIN, 14));
@@ -125,12 +174,16 @@ public class MovementsPanel extends JPanel {
     }
 
     /**
-     * Registra un movimiento en formato de texto dentro de la tabla de historial.
-     * Si el último turno registrado tiene pendiente la jugada de las negras, se
-     * añade en dicha columna; de lo contrario, se crea una nueva fila para el
-     * siguiente turno con la jugada de las blancas.
+     * Registra un nuevo movimiento en notación de texto dentro de la tabla de historial.
+     * <p>
+     * Si la tabla está vacía o la última fila ya contiene la jugada de las piezas negras,
+     * inserta una nueva fila incrementando el número de turno y colocando la jugada en la
+     * columna de las blancas. En caso contrario, completa la fila actual asignando el
+     * movimiento a la columna de las negras. Finalmente, desplaza la vista hasta el final.
+     * </p>
      *
-     * @param movement Cadena que representa el movimiento (ej. "e2 - e4" o "Cf3").
+     * @param movement la cadena que representa el movimiento realizado en notación algebraica
+     *                 (por ejemplo, {@code "e4"}, {@code "Cf3"} o {@code "O-O"}).
      */
     public void addMovement(String movement) {
         int rowCount = tableModel.getRowCount();
@@ -147,7 +200,8 @@ public class MovementsPanel extends JPanel {
     }
 
     /**
-     * Desplaza automáticamente la vista de la tabla hacia el último movimiento registrado.
+     * Desplaza automáticamente la vista de la tabla hacia la última fila para mantener
+     * visible el movimiento más reciente.
      */
     private void scrollToBottom() {
         int lastRow = movementsTable.getRowCount() - 1;

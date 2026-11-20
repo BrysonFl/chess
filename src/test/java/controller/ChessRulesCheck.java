@@ -6,28 +6,86 @@ import view.Square;
 import view.pieces.*;
 import view.pieces.king.King;
 
-/** Verificaciones de reglas ejecutables sin abrir ventanas. */
+/**
+ * Utilidad de verificación integral de las reglas del ajedrez ejecutable sin necesidad
+ * de abrir ventanas gráficas visibles.
+ * <p>
+ * Comprueba escenarios críticos de juego como el jaque mate (Mate del loco), el bloqueo
+ * del tablero tras finalizar la partida, las restricciones y ejecución del enroque,
+ * la promoción de peones, la reclamación de tablas por triple repetición y el rey ahogado.
+ * </p>
+ *
+ * @author brysonfl
+ * @see GameController
+ * @see Board
+ */
 public class ChessRulesCheck {
+
+    /**
+     * Constructor por defecto para la clase de verificación de reglas {@code ChessRulesCheck}.
+     */
+    public ChessRulesCheck() {
+    }
+
+    /**
+     * Invoca mediante reflexión un método declarado en {@link GameController}.
+     *
+     * @param controller la instancia de {@link GameController} sobre la cual se invocará el método.
+     * @param name       el nombre exacto del método que se desea invocar.
+     * @param types      el arreglo con los tipos de los parámetros formales del método.
+     * @param args       los argumentos que se pasarán en la invocación.
+     * @return el valor de retorno producido por el método invocado, o {@code null} si es {@code void}.
+     * @throws Exception si el método no existe, no es accesible o lanza una excepción al ejecutarse.
+     */
     private static Object call(GameController controller, String name, Class<?>[] types, Object... args) throws Exception {
         Method method = GameController.class.getDeclaredMethod(name, types);
         method.setAccessible(true);
         return method.invoke(controller, args);
     }
 
+    /**
+     * Valida que una condición booleana se cumpla, lanzando un {@link AssertionError} en caso contrario.
+     *
+     * @param condition la condición lógica que debe evaluarse como {@code true}.
+     * @param message   el mensaje descriptivo del error en caso de que la condición falle.
+     * @throws AssertionError si {@code condition} es {@code false}.
+     */
     private static void require(boolean condition, String message) {
         if (!condition) throw new AssertionError(message);
     }
 
+    /**
+     * Simula un movimiento en el tablero haciendo clic sobre la casilla de origen,
+     * verificando que la casilla de destino esté resaltada como jugada legal y haciendo clic en ella.
+     *
+     * @param board     el tablero ({@link Board}) donde se realiza la jugada.
+     * @param row       la fila de la casilla de origen.
+     * @param col       la columna de la casilla de origen.
+     * @param targetRow la fila de la casilla de destino.
+     * @param targetCol la columna de la casilla de destino.
+     */
     private static void move(Board board, int row, int col, int targetRow, int targetCol) {
         board.getSquares()[row][col].doClick(0);
         require(board.getSquares()[targetRow][targetCol].isHighlight(), "Movimiento legal esperado");
         board.getSquares()[targetRow][targetCol].doClick(0);
     }
 
+    /**
+     * Elimina todas las piezas de las casillas del tablero especificado, dejándolo completamente vacío.
+     *
+     * @param board el tablero ({@link Board}) cuyas casillas serán limpiadas.
+     */
     private static void clear(Board board) {
         for (Square[] row : board.getSquares()) for (Square square : row) square.setPiece(null);
     }
 
+    /**
+     * Punto de entrada que ejecuta secuencialmente las verificaciones de reglas de ajedrez
+     * en el hilo de despacho de eventos de Swing (EDT).
+     *
+     * @param args argumentos de la línea de comandos (no utilizados).
+     * @throws Exception si ocurre un error de ejecución o falla alguna verificación en el hilo de Swing.
+     */
     public static void main(String[] args) throws Exception {
         javax.swing.SwingUtilities.invokeAndWait(() -> {
             try {

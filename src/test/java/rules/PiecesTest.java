@@ -11,7 +11,40 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static support.SwingTest.*;
 
+/**
+ * Conjunto de pruebas unitarias para validar la lógica de movimiento, captura, estado
+ * y recursos gráficos de todas las piezas de ajedrez ({@link Piece} y subclases).
+ * <p>
+ * Comprueba la cantidad de destinos válidos en un tablero vacío, la detención de piezas
+ * deslizantes ({@link Rook}, {@link Bishop}, {@link Queen}) ante piezas aliadas o enemigas,
+ * el salto del {@link Knight}, los límites de tablero del {@link King}, las reglas completas
+ * del {@link Pawn} y la planificación y validación del enroque ({@link CastleMovement}).
+ * </p>
+ *
+ * @author brysonfl
+ * @see Piece
+ * @see Pawn
+ * @see King
+ */
 class PiecesTest {
+
+    /**
+     * Constructor por defecto para el conjunto de pruebas de piezas {@code PiecesTest}.
+     */
+    PiecesTest() {
+    }
+
+    /**
+     * Obtiene el conjunto de coordenadas destino válidas para una pieza en una posición dada,
+     * verificando que todos los destinos estén dentro de los límites del tablero y sin duplicados.
+     *
+     * @param p la pieza ({@link Piece}) cuyos movimientos válidos se van a calcular.
+     * @param r la fila actual de la pieza en el tablero.
+     * @param c la columna actual de la pieza en el tablero.
+     * @param b el tablero ({@link Board}) en el que se evalúan los movimientos.
+     * @return un {@link Set} de cadenas con el formato {@code "fila,columna"} que representan
+     *         los destinos únicos permitidos.
+     */
     static Set<String> moves(Piece p, int r, int c, Board b) {
         Set<String> result = new HashSet<>();
         for (Integer[] m : p.validMovements(r,c,b)) {
@@ -20,6 +53,16 @@ class PiecesTest {
         }
         return result;
     }
+
+    /**
+     * Verifica de forma parametrizada la cantidad exacta de casillas destino que puede alcanzar
+     * cada pieza ({@link Bishop}, {@link Rook}, {@link Queen}, {@link Knight} y {@link King})
+     * desde la casilla central {@code (3, 3)} en un tablero vacío.
+     *
+     * @param type  el identificador en texto del tipo de pieza a evaluar.
+     * @param count el número total de movimientos válidos esperados desde {@code (3, 3)}.
+     * @throws Exception si ocurre un error al ejecutar la prueba en el EDT.
+     */
     @ParameterizedTest @CsvSource({"bishop,13", "rook,14", "queen,27", "knight,8", "king,8"})
     void emptyBoardDestinations(String type, int count) throws Exception {
         onEdt(() -> {
@@ -32,6 +75,14 @@ class PiecesTest {
             assertEquals(count,moves(p,3,3,b).size());
         });
     }
+
+    /**
+     * Comprueba que las piezas deslizantes ({@link Rook}, {@link Bishop} y {@link Queen})
+     * detengan su trayectoria antes de una pieza aliada y puedan capturar la primera pieza
+     * enemiga en su camino sin atravesarla.
+     *
+     * @throws Exception si ocurre un error al ejecutar la prueba en el EDT.
+     */
     @Test void slidersStopAtFriendlyAndEnemyPieces() throws Exception {
         onEdt(() -> {
             for (Piece p : List.of(new Rook(true),new Bishop(true),new Queen(true))) {
@@ -47,6 +98,14 @@ class PiecesTest {
             }
         });
     }
+
+    /**
+     * Verifica que el {@link Knight} pueda saltar sobre otras piezas en la posición inicial
+     * del tablero y que el {@link King} ubicado en una esquina solo genere destinos dentro
+     * de los límites del tablero.
+     *
+     * @throws Exception si ocurre un error al ejecutar la prueba en el EDT.
+     */
     @Test void knightJumpsAndKingStaysInsideBoard() throws Exception {
         onEdt(() -> {
             Board b=new Board(null);
@@ -55,6 +114,15 @@ class PiecesTest {
             assertEquals(Set.of("0,1","1,0","1,1"),moves(new King(true),0,0,b));
         });
     }
+
+    /**
+     * Comprueba para ambos colores ({@code true} para blancas, {@code false} para negras)
+     * el avance simple y doble del {@link Pawn}, el bloqueo frontal, la captura diagonal
+     * y las condiciones de activación y validación de la captura al paso (<i>en passant</i>).
+     *
+     * @param white {@code true} para evaluar un peón blanco; {@code false} para un peón negro.
+     * @throws Exception si ocurre un error al ejecutar la prueba en el EDT.
+     */
     @ParameterizedTest @ValueSource(booleans={true,false})
     void pawnAdvanceCaptureAndEnPassant(boolean white) throws Exception {
         onEdt(() -> {
@@ -77,6 +145,16 @@ class PiecesTest {
             assertFalse(moves(p,r,3,b).contains((r+d)+",4"));
         });
     }
+
+    /**
+     * Verifica de forma parametrizada las reglas de validación ({@link King#canCastle}) y la
+     * generación del plan de enroque ({@link King#castleMovement}) tanto corto como largo
+     * para ambos bandos, incluyendo restricciones por jaque, casillas ocupadas o piezas ya movidas.
+     *
+     * @param white   {@code true} si se evalúa el rey blanco; {@code false} para el rey negro.
+     * @param rookCol la columna de la torre con la que se prueba el enroque ({@code 0} o {@code 7}).
+     * @throws Exception si ocurre un error al ejecutar la prueba en el EDT.
+     */
     @ParameterizedTest @CsvSource({"true,0", "true,7", "false,0", "false,7"})
     void castleRulesAndPlan(boolean white,int rookCol) throws Exception {
         onEdt(() -> {
@@ -101,6 +179,14 @@ class PiecesTest {
             k.markMoved(); assertFalse(k.canCastle(origin,rookCol,b,s->false,s->true));
         });
     }
+
+    /**
+     * Comprueba para todas las piezas de ambos colores su estado inicial de movimiento,
+     * la carga y escalado de su icono gráfico, las reglas de captura ({@link Piece#canCapture(Piece)}),
+     * el marcado de pieza movida ({@link Piece#markMoved()}) y su representación en texto.
+     *
+     * @throws Exception si ocurre un error al ejecutar la prueba en el EDT.
+     */
     @Test void pieceStateCaptureAndResources() throws Exception {
         onEdt(() -> {
             for (boolean white:new boolean[]{true,false}) {

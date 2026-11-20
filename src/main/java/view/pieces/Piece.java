@@ -11,27 +11,39 @@ import view.Board;
 import view.pieces.king.King;
 
 /**
- * Clase abstracta que representa de forma genérica una pieza de ajedrez. 
- * Contiene las propiedades y comportamientos comunes a todas las piezas, 
- * tales como su color, tipo, icono gráfico y la definición del contrato 
- * para calcular sus movimientos válidos.
- * 
+ * Clase abstracta que representa de forma genérica una pieza de ajedrez.
+ * <p>
+ * Contiene las propiedades y comportamientos comunes a todas las piezas del tablero,
+ * tales como su color (bando blanco o negro), tipo ({@link PieceType}), estado de
+ * movimiento previo, representación gráfica ({@link ImageIcon}) y la definición del
+ * contrato abstracto para calcular sus movimientos pseudolegales sobre el {@link Board}.
+ * </p>
+ *
  * @author brysonfl
+ * @see PieceType
+ * @see Board
  */
 public abstract class Piece {
     
+    /** Icono gráfico escalado que representa visualmente a la pieza en el tablero. */
     private ImageIcon icon;
+
+    /** Indica si la pieza ya ha realizado al menos un movimiento durante la partida. */
     private boolean moved;
+
+    /** Tipo específico de la pieza dentro del catálogo {@link PieceType}. */
     private final PieceType pieceType;
     
+    /** Define el bando de la pieza: {@code true} para blancas, {@code false} para negras. */
     private final boolean white;
     
     /**
-     * Construye una nueva pieza de ajedrez con el color y tipo especificados, 
-     * cargando automáticamente su respectivo icono gráfico.
-     * 
-     * @param isWhite   Define si la pieza es blanca ({@code true}) o negra ({@code false}).
-     * @param pieceType El tipo de la pieza (ej. Peón, Torre, Reina, etc.).
+     * Construye una nueva pieza de ajedrez con el color y tipo especificados,
+     * cargando y escalando automáticamente su respectivo icono gráfico.
+     *
+     * @param isWhite   define si la pieza pertenece al bando blanco ({@code true})
+     *                  o negro ({@code false}).
+     * @param pieceType el tipo de pieza según la enumeración {@link PieceType}.
      */
     protected Piece(boolean isWhite, PieceType pieceType) {
         this.white = isWhite;
@@ -40,10 +52,15 @@ public abstract class Piece {
     }
     
     /**
-     * Carga y escala la imagen correspondiente al icono de la pieza basándose 
-     * en su color y tipo utilizando los recursos del proyecto.
-     * 
-     * @param isWhite Indica si se debe cargar la versión blanca o negra de la imagen.
+     * Carga y escala la imagen correspondiente al icono de la pieza basándose
+     * en su color y tipo, utilizando los recursos empaquetados en {@code /pieces/}.
+     * <p>
+     * La imagen obtenida se redimensiona a {@code 80x80} píxeles mediante un algoritmo
+     * de suavizado ({@link Image#SCALE_SMOOTH}) y se almacena en {@link #icon}.
+     * </p>
+     *
+     * @param isWhite indica si se debe cargar la variante blanca ({@code true}, prefijo {@code "w"})
+     *                o negra ({@code false}, prefijo {@code "b"}) de la imagen.
      */
     private void loadIcon(boolean isWhite) {
         try {
@@ -68,72 +85,104 @@ public abstract class Piece {
 
     /**
      * Obtiene el icono gráfico escalado de la pieza.
-     * 
-     * @return Un objeto {@code ImageIcon} que representa visualmente la pieza.
+     *
+     * @return el objeto {@link ImageIcon} que representa visualmente a la pieza.
      */
     public ImageIcon getIcon() {
         return icon;
     }
 
-    /** @return Indica si la pieza ya realizó algún movimiento. */
+    /**
+     * Verifica si la pieza ya ha efectuado algún movimiento desde el inicio de la partida.
+     * <p>
+     * Este estado resulta fundamental para validar reglas especiales como el enroque
+     * del rey y la torre, o el avance inicial de dos casillas del peón.
+     * </p>
+     *
+     * @return {@code true} si la pieza ya se ha movido al menos una vez;
+     *         {@code false} si permanece en su casilla inicial sin haberse desplazado.
+     */
     public boolean hasMoved() {
         return moved;
     }
 
-    /** Marca la pieza como movida para conservar los derechos de enroque. */
+    /**
+     * Registra que la pieza ha realizado un desplazamiento en el tablero.
+     * <p>
+     * Establece el indicador interno {@link #moved} en {@code true}, lo cual actualiza
+     * condiciones asociadas como la elegibilidad para realizar el enroque.
+     * </p>
+     */
     public void markMoved() {
         moved = true;
     }
 
     /**
-     * Obtiene el valor material de la pieza, independientemente de su color.
+     * Obtiene el valor material estándar de la pieza, independientemente de su color.
      *
-     * @return El valor en puntos; el rey devuelve 0 porque no se cuenta como material.
+     * @return el valor numérico en puntos asociado al {@link PieceType}; el rey devuelve
+     *         {@code 0} dado que no se contabiliza como material capturable.
+     * @see PieceType#getValue()
      */
     public int getValue() {
         return pieceType.getValue();
     }
 
     /**
-     * Indica si la pieza pertenece al bando blanco.
-     * 
-     * @return {@code true} si la pieza es blanca, {@code false} si es negra.
+     * Indica si la pieza pertenece al bando de las blancas.
+     *
+     * @return {@code true} si la pieza es blanca; {@code false} si es negra.
      */
     public boolean isWhite() {
         return white;
     }
 
+    /**
+     * Obtiene el identificador en texto del tipo de pieza.
+     *
+     * @return una cadena con el nombre o código del tipo de pieza según {@link PieceType#getType()}.
+     * @see PieceType#getType()
+     */
     public String getPieceType() {
         return pieceType.getType();
     }
     
     /**
-     * Método abstracto para calcular y retornar una lista con todos los movimientos 
-     * válidos y legales disponibles para la pieza desde su posición actual en el tablero.
-     * 
-     * @param row   La fila actual en la que se encuentra la pieza.
-     * @param col   La columna actual en la que se encuentra la pieza.
-     * @param board El tablero actual del juego, utilizado para verificar restricciones y casillas.
-     * @return Una lista de arreglos de enteros donde cada elemento representa las coordenadas 
-     *         {@code [fila, columna]} de una casilla válida a la que la pieza puede desplazarse.
+     * Calcula y retorna una lista con todos los movimientos válidos para la pieza
+     * desde su posición actual en el tablero, según sus reglas geométricas de desplazamiento.
+     *
+     * @param row   el índice de la fila actual (0 a 7) en la que se encuentra la pieza.
+     * @param col   el índice de la columna actual (0 a 7) en la que se encuentra la pieza.
+     * @param board la instancia del tablero ({@link Board}) sobre la cual se evalúan
+     *              las casillas libres, bloqueos y posibles capturas.
+     * @return una lista de arreglos {@code Integer[]} de dos elementos, donde cada par
+     *         {@code [fila, columna]} representa una casilla destino alcanzable.
      */
     public abstract List<Integer[]> validMovements(int row, int col, Board board);
 
     /**
-     * Comprueba si una pieza contraria puede ser capturada. El rey no se captura.
+     * Comprueba si una pieza ubicada en una casilla de destino puede ser capturada
+     * por esta pieza.
+     * <p>
+     * Una pieza es capturable únicamente si existe ({@code piece != null}), pertenece
+     * al bando contrario y no es una instancia de {@link King} (ya que en ajedrez el rey
+     * nunca se captura directamente).
+     * </p>
      *
-     * @param piece La pieza que ocupa la casilla de destino.
-     * @return {@code true} si pertenece al contrario y no es un rey.
+     * @param piece la pieza que ocupa la casilla de destino a evaluar, o {@code null} si está vacía.
+     * @return {@code true} si la pieza objetivo pertenece al oponente y no es un rey;
+     *         {@code false} en caso contrario.
+     * @see King
      */
     public boolean canCapture(Piece piece) {
         return piece != null && piece.isWhite() != isWhite() && !(piece instanceof King);
     }
 
     /**
-     * Retorna una representación en cadena de texto del objeto {@code Piece}, 
+     * Retorna una representación en cadena de texto del estado de la pieza,
      * detallando su icono, tipo y color.
-     * 
-     * @return Una cadena con los atributos principales de la pieza.
+     *
+     * @return una cadena descriptiva con los atributos principales de la instancia.
      */
     @Override
     public String toString() {
