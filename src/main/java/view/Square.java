@@ -185,15 +185,18 @@ public class Square extends JButton {
         if (check && piece instanceof King && getWidth() > 0 && getHeight() > 0) {
             Graphics2D g2D = (Graphics2D) g.create();
             float radius = Math.min(getWidth(), getHeight()) / 2.0f;
+
             g2D.setPaint(new RadialGradientPaint(getWidth() / 2.0f, getHeight() / 2.0f, radius,
                     new float[]{ 0.0f, 0.55f, 1.0f },
                     new Color[]{ new Color(255, 220, 40, 180), new Color(255, 165, 0, 160),
-                        new Color(255, 140, 0, 0) }));
+                    new Color(255, 140, 0, 0) }));
+
             g2D.fillRect(0, 0, getWidth(), getHeight());
+
             if (getIcon() != null) {
-                getIcon().paintIcon(this, g2D, (getWidth() - getIcon().getIconWidth()) / 2,
-                        (getHeight() - getIcon().getIconHeight()) / 2);
+                getIcon().paintIcon(this, g2D, (getWidth() - getIcon().getIconWidth()) / 2, (getHeight() - getIcon().getIconHeight()) / 2);
             }
+
             g2D.dispose();
         }
 
