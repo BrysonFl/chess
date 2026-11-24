@@ -13,6 +13,10 @@ import java.util.concurrent.atomic.AtomicInteger;
  * para mostrar un temporizador visual segundo a segundo antes de reiniciar el juego.
  * </p>
  *
+ * <p>Los diálogos requieren un entorno gráfico y deben utilizarse desde el hilo de
+ * eventos de Swing. La cuenta regresiva utiliza un temporizador Swing; la acción
+ * final se ejecuta al regresar del diálogo modal, después de liberar sus recursos.</p>
+ *
  * @author brysonfl
  * @see view.buttons.ResignButton
  * @see controller.GameController

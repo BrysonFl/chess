@@ -21,6 +21,10 @@ import javax.swing.JFrame;
  * y el panel de historial de movimientos ({@link MovementsPanel}).
  * </p>
  *
+ * <p>Requiere un entorno con pantalla. Su constructor muestra la ventana y el cierre
+ * termina la aplicación mediante {@link JFrame#EXIT_ON_CLOSE}. El título debe ser
+ * distinto de {@code null}.</p>
+ *
  * @author brysonfl
  * @see Board
  * @see MovementsPanel

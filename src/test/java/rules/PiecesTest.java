@@ -21,6 +21,9 @@ import static support.SwingTest.*;
  * del {@link Pawn} y la planificación y validación del enroque ({@link CastleMovement}).
  * </p>
  *
+ * <p>Los destinos comprobados aquí son pseudolegales. La protección del rey propio
+ * y la alternancia de turnos se verifican en las pruebas del controlador.</p>
+ *
  * @author brysonfl
  * @see Piece
  * @see Pawn

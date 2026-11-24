@@ -19,6 +19,10 @@ import view.pieces.Rook;
  * {@link Rook} del mismo bando.
  * </p>
  *
+ * <p>La generación de destinos adyacentes y la comprobación del enroque son operaciones
+ * separadas. La seguridad del rey se evalúa mediante el controlador y los predicados
+ * proporcionados a {@link #canCastle}.</p>
+ *
  * @author brysonfl
  * @see Piece
  * @see CastleMovement

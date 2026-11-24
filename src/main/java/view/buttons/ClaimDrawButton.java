@@ -11,6 +11,9 @@ import controller.GameController;
  * 50 movimientos o la triple repetición de posición).
  * </p>
  *
+ * <p>La acción de partida se vincula mediante {@link #configureAction}. Cada
+ * configuración añade oyentes; debe realizarse una vez por instancia y controlador.</p>
+ *
  * @author brysonfl
  * @see ButtonBase
  * @see GameController#claimDraw()

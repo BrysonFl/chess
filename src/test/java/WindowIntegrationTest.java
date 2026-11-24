@@ -19,6 +19,9 @@ import static support.SwingTest.*;
  * Estas pruebas requieren un entorno gráfico activo y se ejecutan con {@code -PuiTests=true}.
  * </p>
  *
+ * <p>Estas pruebas están etiquetadas como ui; la configuración de Gradle las excluye
+ * por defecto. La propiedad uiTests habilita su ejecución con entorno gráfico.</p>
+ *
  * @author brysonfl
  * @see WindowGame
  * @see ResignGameWindow

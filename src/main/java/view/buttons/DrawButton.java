@@ -10,6 +10,9 @@ import controller.GameController;
  * empate a su oponente durante el transcurso de la partida.
  * </p>
  *
+ * <p>La acción de partida se vincula mediante {@link #configureAction}. Cada
+ * configuración añade oyentes; debe realizarse una vez por instancia y controlador.</p>
+ *
  * @author brysonfl
  * @see ButtonBase
  * @see GameController#offerDraw()

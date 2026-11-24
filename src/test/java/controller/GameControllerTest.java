@@ -15,6 +15,9 @@ import static support.SwingTest.*;
  * las tablas automáticas por quíntuple repetición y las regresiones generales de reglas.
  * </p>
  *
+ * <p>Las jugadas se realizan mediante los oyentes registrados en las casillas,
+ * para comprobar el flujo de selección y ejecución además del estado resultante.</p>
+ *
  * @author brysonfl
  * @see GameController
  * @see ChessRulesCheck

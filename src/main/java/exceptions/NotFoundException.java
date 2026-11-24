@@ -5,8 +5,9 @@ package exceptions;
  * requerido por la aplicación no pudo ser localizado.
  * <p>
  * Esta clase extiende {@link RuntimeException}, por lo que representa una excepción
- * no verificada (<i>unchecked</i>) utilizada principalmente durante la carga de iconos
- * o recursos gráficos de las piezas y componentes del tablero.
+ * no verificada (<i>unchecked</i>). La carga de iconos de las piezas contempla su
+ * captura, aunque actualmente un recurso ausente se trata como una
+ * {@link NullPointerException} dentro de esa rutina.
  * </p>
  *
  * @author brysonfl

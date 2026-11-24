@@ -15,6 +15,10 @@ import view.Board;
  * del tablero, una pieza aliada o tras capturar la primera pieza adversaria en su trayectoria.
  * </p>
  *
+ * <p>Los destinos son pseudolegales: respetan desplazamientos y ocupación, pero
+ * no comprueban el turno ni la seguridad del rey propio. El
+ * {@link controller.GameController} realiza ese filtrado antes de permitir una jugada.</p>
+ *
  * @author brysonfl
  * @see Piece
  * @see PieceType#BISHOP

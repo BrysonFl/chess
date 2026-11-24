@@ -8,6 +8,10 @@ package enums;
  * de recursos gráficos) junto con su valor material relativo en puntos.
  * </p>
  *
+ * <p>Los códigos son P, R, N, B, Q y K, independientemente del idioma de la interfaz.
+ * Los valores materiales son descriptivos y no determinan por sí solos el resultado
+ * ni la legalidad de una posición.</p>
+ *
  * @author brysonfl
  */
 public enum PieceType {

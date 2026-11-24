@@ -30,10 +30,15 @@ import view.pieces.Piece;
  * ({@link Square}), coordinando la selección de piezas, el resaltado y filtrado de
  * movimientos legales (evitando dejar al propio rey en jaque), la ejecución de
  * jugadas especiales (enroque, captura al paso y coronación de peones), el registro
- * de notación algebraica en {@link MovementsPanel} y la detección de condiciones
+ * de notación algebraica simplificada en {@link MovementsPanel} y la detección de condiciones
  * de fin de partida (jaque mate, ahogado, insuficiencia de material, repetición de
  * posiciones, regla de los 50/75 movimientos, acuerdo de tablas y abandono).
  * </p>
+ *
+ * <p>Mantiene el estado de una sola partida. Las operaciones usan directamente las
+ * casillas mutables del tablero, incluidas las simulaciones de seguridad, y deben
+ * ejecutarse de forma secuencial; en la interfaz se invocan desde el hilo de eventos
+ * de Swing. El historial de posiciones se inicia al recibir el primer clic.</p>
  *
  * @author brysonfl
  * @see Board
@@ -615,8 +620,8 @@ public class GameController implements ActionListener {
     }
 
     /**
-     * Genera una clave única en formato de texto que codifica el estado completo de la
-     * posición actual conforme a las reglas de repetición de la FIDE.
+     * Genera la clave utilizada para contar las repeticiones de la posición actual.
+     * No incluye el historial de jugadas ni el contador de medios movimientos.
      * <p>
      * La clave incluye el bando al turno ({@code "w"} o {@code "b"}), la disposición de
      * todas las piezas en las 64 casillas, los derechos vigentes de enroque para ambos

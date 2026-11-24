@@ -14,6 +14,9 @@ import view.Square;
  * @param rookTarget la casilla de destino ({@link Square}) a la que debe trasladarse la torre tras el enroque.
  * @param notation   la representación en notación algebraica del enroque ({@code "O-O"} para enroque corto,
  *                   {@code "O-O-O"} para enroque largo).
+ * <p>Las referencias del registro son finales, pero las casillas referenciadas son
+ * mutables. Este objeto describe el traslado de la torre; no ejecuta ni valida la jugada.</p>
+ *
  * @author brysonfl
  * @see King
  * @see Square

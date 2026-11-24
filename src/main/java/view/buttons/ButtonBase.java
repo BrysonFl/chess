@@ -15,6 +15,9 @@ import java.awt.*;
  * comportamiento de cada botón con el controlador del juego ({@link GameController}).
  * </p>
  *
+ * <p>La acción de partida se vincula mediante {@link #configureAction}. Cada
+ * configuración añade oyentes; debe realizarse una vez por instancia y controlador.</p>
+ *
  * @author brysonfl
  * @see ClaimDrawButton
  * @see DrawButton

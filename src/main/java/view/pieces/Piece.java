@@ -19,6 +19,10 @@ import view.pieces.king.King;
  * contrato abstracto para calcular sus movimientos pseudolegales sobre el {@link Board}.
  * </p>
  *
+ * <p>Las coordenadas usan índices de 0 a 7: (0, 0) representa a8 y (7, 7), h1.
+ * Los métodos de movimiento devuelven listas modificables de pares [fila, columna],
+ * sin modificar el tablero. No comprueban el turno ni si el rey propio queda en jaque.</p>
+ *
  * @author brysonfl
  * @see PieceType
  * @see Board
@@ -86,7 +90,7 @@ public abstract class Piece {
     /**
      * Obtiene el icono gráfico escalado de la pieza.
      *
-     * @return el objeto {@link ImageIcon} que representa visualmente a la pieza.
+     * @return el icono de la pieza, o {@code null} si no se pudo cargar el recurso.
      */
     public ImageIcon getIcon() {
         return icon;
@@ -96,11 +100,11 @@ public abstract class Piece {
      * Verifica si la pieza ya ha efectuado algún movimiento desde el inicio de la partida.
      * <p>
      * Este estado resulta fundamental para validar reglas especiales como el enroque
-     * del rey y la torre, o el avance inicial de dos casillas del peón.
+     * del rey y la torre. El avance doble del peón se determina por su fila.
      * </p>
      *
      * @return {@code true} si la pieza ya se ha movido al menos una vez;
-     *         {@code false} si permanece en su casilla inicial sin haberse desplazado.
+     *         {@code false} si todavía no se ha invocado {@link #markMoved()}.
      */
     public boolean hasMoved() {
         return moved;

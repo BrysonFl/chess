@@ -8,6 +8,9 @@ import view.WindowGame;
  * por {@link WindowGame}.
  * </p>
  *
+ * <p>Permanece en el paquete sin nombre. El arranque actual crea la ventana directamente
+ * en el hilo que invoca {@code main}; no programa su creación en el hilo de eventos de Swing.</p>
+ *
  * @author brysonfl
  * @see WindowGame
  */

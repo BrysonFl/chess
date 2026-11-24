@@ -13,6 +13,10 @@ import view.pieces.Piece;
  * para registrar movimientos y verificar posiciones válidas dentro de la cuadrícula de 8x8.
  * </p>
  *
+ * <p>La notación generada es simplificada: omite la desambiguación y la marca de
+ * captura para piezas distintas del peón. El controlador añade enroque, promoción,
+ * jaque y mate. La conversión de coordenadas presupone una casilla válida y no nula.</p>
+ *
  * @author brysonfl
  * @see Square
  * @see Piece

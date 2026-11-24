@@ -15,6 +15,10 @@ import view.Board;
  * las ocho direcciones (horizontal, vertical y las cuatro diagonales).
  * </p>
  *
+ * <p>Los destinos son pseudolegales: respetan desplazamientos y ocupación, pero
+ * no comprueban el turno ni la seguridad del rey propio. El
+ * {@link controller.GameController} realiza ese filtrado antes de permitir una jugada.</p>
+ *
  * @author brysonfl
  * @see Piece
  * @see PieceType#QUEEN

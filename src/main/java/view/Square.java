@@ -21,6 +21,10 @@ import view.pieces.Piece;
  * válidos y de alerta cuando el rey ({@link King}) se encuentra en jaque.
  * </p>
  * 
+ * <p>Asignar una pieza actualiza la ocupación y el icono, pero no valida movimientos,
+ * turnos ni capturas. Cambiar las coordenadas con los setters no recoloca el botón
+ * en el tablero ni recalcula su color de fondo.</p>
+ *
  * @author brysonfl
  * @see Board
  * @see Piece

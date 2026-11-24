@@ -23,6 +23,9 @@ import static support.SwingTest.*;
  * los valores de {@link PieceType} y la excepción {@link NotFoundException}.
  * </p>
  *
+ * <p>Las comprobaciones de componentes se apoyan en el hilo de eventos de Swing
+ * y no sustituyen las pruebas de ventanas que requieren una pantalla.</p>
+ *
  * @author brysonfl
  * @see Board
  * @see MovementsPanel

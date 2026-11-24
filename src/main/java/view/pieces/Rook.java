@@ -15,6 +15,10 @@ import view.Board;
  * rey en la jugada especial de enroque si aún no se ha movido ({@link #hasMoved()}).
  * </p>
  *
+ * <p>Los destinos son pseudolegales: respetan desplazamientos y ocupación, pero
+ * no comprueban el turno ni la seguridad del rey propio. El
+ * {@link controller.GameController} realiza ese filtrado antes de permitir una jugada.</p>
+ *
  * @author brysonfl
  * @see Piece
  * @see PieceType#ROOK

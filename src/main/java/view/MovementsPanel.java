@@ -22,6 +22,10 @@ import javax.swing.table.JTableHeader;
  * ({@link DrawButton}) o reclamar tablas ({@link ClaimDrawButton}).
  * </p>
  *
+ * <p>El historial alterna blancas y negras según el orden de inserción; no interpreta
+ * ni valida la notación recibida. La vinculación de controles se realiza durante
+ * la construcción del tablero y añade nuevos oyentes en cada llamada.</p>
+ *
  * @author brysonfl
  * @see Board
  * @see GameController
@@ -183,7 +187,7 @@ public class MovementsPanel extends JPanel {
      * </p>
      *
      * @param movement la cadena que representa el movimiento realizado en notación algebraica
-     *                 (por ejemplo, {@code "e4"}, {@code "Cf3"} o {@code "O-O"}).
+     *                 (por ejemplo, {@code "e4"}, {@code "Nf3"} o {@code "O-O"}).
      */
     public void addMovement(String movement) {
         int rowCount = tableModel.getRowCount();

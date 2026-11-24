@@ -28,6 +28,10 @@ import view.pieces.Rook;
  * vulnerable a la captura al paso (<i>en passant</i>).
  * </p>
  *
+ * <p>La matriz utiliza la orientación de las blancas: fila 0 para la octava línea
+ * y columna 0 para la columna a. Conserva tanto la presentación como la ocupación
+ * de las casillas; el controlador aplica las reglas de la partida.</p>
+ *
  * @author brysonfl
  * @see Square
  * @see MovementsPanel
@@ -57,7 +61,8 @@ public class Board extends JPanel {
      * </p>
      * 
      * @param movementsPanel el panel lateral ({@link MovementsPanel}) donde se registrará
-     *                       el historial de jugadas y se configurarán los controles de partida.
+     *                       el historial de jugadas y se configurarán los controles de partida;
+     *                       puede ser {@code null} para usar el tablero sin panel lateral.
      */
     public Board(MovementsPanel movementsPanel) {
         this.movementsPanel = movementsPanel;
@@ -205,7 +210,8 @@ public class Board extends JPanel {
     }
 
     /**
-     * Obtiene la matriz bidimensional de casillas que conforman el tablero de ajedrez.
+     * Obtiene la matriz interna de casillas, sin realizar una copia defensiva.
+     * Las modificaciones de sus elementos afectan directamente al tablero.
      * 
      * @return una matriz {@link Square}{@code [8][8]} con todas las casillas del tablero,
      *         indexadas por fila ({@code 0} a {@code 7}) y columna ({@code 0} a {@code 7}).

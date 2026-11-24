@@ -17,6 +17,9 @@ import javax.swing.*;
  * la promoción de peones, la reclamación de tablas por triple repetición y el rey ahogado.
  * </p>
  *
+ * <p>Puede ejecutarse mediante su método main; las comprobaciones lanzan
+ * AssertionError si una condición esperada no se cumple.</p>
+ *
  * @author brysonfl
  * @see GameController
  * @see Board

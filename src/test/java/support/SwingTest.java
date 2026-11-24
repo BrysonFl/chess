@@ -14,6 +14,9 @@ import view.Square;
  * propagando errores de JUnit, así como para instanciar tableros limpios sin piezas.
  * </p>
  *
+ * <p>El método onEdt debe invocarse fuera del EDT porque utiliza invokeAndWait.
+ * emptyBoard conserva las casillas y el controlador del tablero recién creado.</p>
+ *
  * @author brysonfl
  * @see SwingUtilities
  * @see Board
